@@ -1,0 +1,29 @@
+import type { Metadata } from 'next'
+import './globals.css'
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Íntima Studio — Diseño de Interiores',
+    template: '%s | Íntima Studio',
+  },
+  description:
+    'Estudio de diseño de interiores en Asunción, Paraguay. Transformamos espacios en experiencias únicas con un enfoque en la calidad y la innovación.',
+  keywords: ['diseño de interiores', 'Paraguay', 'Asunción', 'Íntima Studio', 'interiorismo'],
+  openGraph: {
+    type: 'website',
+    locale: 'es_PY',
+    siteName: 'Íntima Studio',
+  },
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="es">
+      <body>{children}</body>
+    </html>
+  )
+}

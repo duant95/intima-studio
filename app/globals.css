@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Fuentes personalizadas ─────────────────────────────────────── */
+@font-face {
+  font-family: 'MonumentExtended';
+  src: url('/fonts/MonumentExtended-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TTHovesPro';
+  src: url('/fonts/TTHovesPro-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TTHovesPro';
+  src: url('/fonts/TTHovesPro-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TTHovesPro';
+  src: url('/fonts/TTHovesPro-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ─── Reset & Base ─────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --color-brown:  #5c5449;
+    --color-beige:  #e4e1dc;
+    --color-sand:   #cbc4ba;
+    --color-dark:   #393939;
+    --color-black:  #231f20;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-intima-beige text-intima-black font-body antialiased;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  a {
+    @apply transition-colors duration-200;
+  }
+
+  /* Scrollbar minimalista */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #e4e1dc;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbc4ba;
+    border-radius: 2px;
+  }
+}
+
+/* ─── Utilidades globales ──────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .container-site {
+    @apply max-w-7xl mx-auto px-6 md:px-12 lg:px-16;
+  }
+
+  /* Separador de sección elegante */
+  .section-divider {
+    @apply border-t border-intima-sand/60;
+  }
+
+  /* Overlay oscuro para imágenes */
+  .img-overlay::after {
+    content: '';
+    @apply absolute inset-0 bg-intima-black/20 transition-opacity duration-500;
+  }
+
+  .img-overlay:hover::after {
+    @apply opacity-0;
+  }
+
+  /* Animación de aparición suave */
+  .fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
