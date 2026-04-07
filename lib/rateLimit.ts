@@ -32,7 +32,7 @@ export function rateLimit(ip: string, options: RateLimitOptions): { allowed: boo
 // Limpiar entradas viejas cada 10 minutos para evitar memory leaks
 setInterval(() => {
   const now = Date.now()
-  for (const [key, entry] of requests.entries()) {
+  requests.forEach((entry, key) => {
     if (now > entry.resetAt) requests.delete(key)
-  }
+  })
 }, 10 * 60 * 1000)
