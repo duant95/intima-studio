@@ -1,7 +1,7 @@
 import { createAdminClient, type Proyecto } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
-import { PlusSquare, Pencil, Trash2, Star } from 'lucide-react'
+import { PlusSquare, Pencil, Trash2, Star, Images } from 'lucide-react'
 import DeleteProyectoButton from '@/components/admin/DeleteProyectoButton'
 
 async function getProyectos(): Promise<Proyecto[]> {
