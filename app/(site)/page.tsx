@@ -7,7 +7,7 @@ import FadeIn from '@/components/FadeIn'
 export const dynamic = 'force-dynamic'
 
 async function getProyectosDestacados(): Promise<Proyecto[]> {
-  // Primero intentar con destacados
+  // Mostrar destacados primero, luego completar con más recientes hasta 6
   const { data: destacados } = await supabase
     .from('proyectos')
     .select('*')
@@ -15,16 +15,20 @@ async function getProyectosDestacados(): Promise<Proyecto[]> {
     .order('orden', { ascending: true })
     .limit(6)
 
-  if (destacados && destacados.length > 0) return destacados
+  if (destacados && destacados.length >= 6) return destacados
 
-  // Si no hay destacados, mostrar los más recientes
+  // Completar con proyectos recientes que no estén ya en destacados
+  const idsDestacados = (destacados ?? []).map((p) => p.id)
+  const restantes = 6 - (destacados?.length ?? 0)
+
   const { data: recientes } = await supabase
     .from('proyectos')
     .select('*')
+    .not('id', 'in', idsDestacados.length > 0 ? `(${idsDestacados.join(',')})` : '(null)')
     .order('created_at', { ascending: false })
-    .limit(6)
+    .limit(restantes)
 
-  return recientes ?? []
+  return [...(destacados ?? []), ...(recientes ?? [])]
 }
 
 export default async function HomePage() {

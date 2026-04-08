@@ -40,7 +40,7 @@ export default function ProyectoForm({ proyecto, isEditing = false }: Props) {
           destacado:   proyecto.destacado,
           orden:       proyecto.orden,
         }
-      : { fecha: new Date().toISOString().split('T')[0], orden: 99 },
+      : { fecha: new Date().toISOString().split('T')[0], orden: 99, destacado: true },
   })
 
   // Subir imágenes a Supabase Storage
