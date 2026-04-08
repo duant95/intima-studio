@@ -5,11 +5,11 @@ export default function Footer() {
 
   return (
     <footer className="bg-intima-black text-intima-sand/70">
-      <div className="container-site py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pb-12 border-b border-intima-dark">
+      <div className="container-site py-12 md:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12 pb-10 md:pb-12 border-b border-intima-dark">
 
           {/* Marca */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <p className="font-display text-intima-beige text-2xl mb-4">
               Íntima<span className="font-body font-light text-intima-brown text-sm ml-1">.studio</span>
             </p>

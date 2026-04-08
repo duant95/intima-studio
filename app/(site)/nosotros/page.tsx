@@ -33,20 +33,20 @@ export default function NosotrosPage() {
   return (
     <>
       {/* Header */}
-      <section className="pt-40 pb-20 bg-intima-beige">
+      <section className="pt-28 md:pt-40 pb-14 md:pb-20 bg-intima-beige">
         <div className="container-site">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-end">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-end">
             <div>
               <p className="font-body text-xs tracking-widest uppercase text-intima-brown mb-4">
                 Sobre nosotros
               </p>
-              <h1 className="font-display text-5xl md:text-6xl text-intima-black leading-none">
+              <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-intima-black leading-none">
                 El diseño como<br />
                 <span className="italic">conversación</span>
               </h1>
             </div>
             <div>
-              <p className="font-body text-intima-dark/80 text-lg leading-relaxed">
+              <p className="font-body text-intima-dark/80 text-base md:text-lg leading-relaxed">
                 Íntima Studio nació de la convicción de que los espacios en los que vivimos y trabajamos nos moldean tanto como nosotros a ellos.
               </p>
             </div>
@@ -60,7 +60,7 @@ export default function NosotrosPage() {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
 
             {/* Imagen grande — reemplazá con imagen real */}
-            <div className="lg:col-span-3 relative aspect-[3/4] overflow-hidden bg-intima-sand/40 flex items-center justify-center">
+            <div className="lg:col-span-3 relative aspect-[4/3] sm:aspect-[3/4] overflow-hidden bg-intima-sand/40 flex items-center justify-center">
               <p className="font-body text-xs tracking-widest uppercase text-intima-brown/40">
                 Foto del equipo
               </p>

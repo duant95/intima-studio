@@ -50,12 +50,12 @@ export default function ContactoPage() {
   return (
     <>
       {/* Header */}
-      <section className="pt-40 pb-16 bg-intima-beige">
+      <section className="pt-28 md:pt-40 pb-10 md:pb-16 bg-intima-beige">
         <div className="container-site">
           <p className="font-body text-xs tracking-widest uppercase text-intima-brown mb-4">
             Hablemos
           </p>
-          <h1 className="font-display text-5xl md:text-7xl text-intima-black leading-none">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl text-intima-black leading-none">
             Contacto
           </h1>
         </div>

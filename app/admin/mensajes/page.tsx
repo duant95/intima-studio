@@ -1,3 +1,4 @@
+
 import { createAdminClient, type Mensaje } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'
 import { Mail, MailOpen } from 'lucide-react'

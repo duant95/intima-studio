@@ -13,54 +13,67 @@ const links = [
   { href: '/contacto', label: 'Contacto' },
 ]
 
+// Páginas que tienen hero oscuro — el navbar arranca en blanco
+const HERO_PAGES = ['/']
+
 export default function Navbar() {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
+  const hasHero = HERO_PAGES.includes(pathname)
+  // Transparente y blanco solo en la home sin scroll
+  const isLight = hasHero && !scrolled
+
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', handleScroll)
+    const handleScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Cerrar menú al cambiar de ruta
   useEffect(() => { setMenuOpen(false) }, [pathname])
 
   return (
     <header
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-        scrolled
-          ? 'bg-intima-beige/95 backdrop-blur-sm border-b border-intima-sand/40 py-4'
+        scrolled || menuOpen
+          ? 'bg-intima-beige/97 backdrop-blur-sm border-b border-intima-sand/40 py-4'
           : 'bg-transparent py-7'
       )}
     >
       <div className="container-site flex items-center justify-between">
 
         {/* Logo */}
-        <Link href="/" className="group">
-          <span className={cn(
-            'font-display text-2xl tracking-tight transition-colors duration-300',
-            scrolled ? 'text-intima-black' : 'text-intima-black'
-          )}>
-            {/* Reemplazá esto con tu logo SVG cuando lo tengas */}
-            <span className="font-display">Íntima</span>
-            <span className="font-body font-light text-intima-brown text-sm ml-1">.studio</span>
+        <Link href="/" className="group flex-shrink-0">
+          <span className="font-display text-xl md:text-2xl tracking-tight transition-colors duration-300">
+            <span className={cn('transition-colors duration-300', isLight ? 'text-intima-beige' : 'text-intima-black')}>
+              Íntima
+            </span>
+            <span className={cn(
+              'font-body font-light text-sm ml-1 transition-colors duration-300',
+              isLight ? 'text-intima-sand/80' : 'text-intima-brown'
+            )}>
+              .studio
+            </span>
           </span>
         </Link>
 
         {/* Nav Desktop */}
-        <nav className="hidden md:flex items-center gap-10">
+        <nav className="hidden md:flex items-center gap-8 lg:gap-10">
           {links.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               className={cn(
-                'font-body text-sm tracking-widest uppercase transition-all duration-200',
+                'font-body text-xs tracking-widest uppercase transition-all duration-300 pb-0.5',
                 pathname === href
-                  ? 'text-intima-brown border-b border-intima-brown pb-0.5'
-                  : 'text-intima-dark hover:text-intima-brown'
+                  ? isLight
+                    ? 'text-intima-beige border-b border-intima-beige/60'
+                    : 'text-intima-brown border-b border-intima-brown'
+                  : isLight
+                    ? 'text-intima-sand/80 hover:text-intima-beige'
+                    : 'text-intima-dark hover:text-intima-brown'
               )}
             >
               {label}
@@ -70,18 +83,21 @@ export default function Navbar() {
 
         {/* Hamburger Mobile */}
         <button
-          className="md:hidden text-intima-dark p-1"
+          className={cn(
+            'md:hidden p-2 transition-colors duration-300',
+            isLight ? 'text-intima-beige' : 'text-intima-dark'
+          )}
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Menú"
+          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
         >
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
-      {/* Menú Mobile */}
+      {/* Menú Mobile — siempre fondo beige */}
       <div className={cn(
-        'md:hidden overflow-hidden transition-all duration-300 bg-intima-beige border-b border-intima-sand/40',
-        menuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
+        'md:hidden overflow-hidden transition-all duration-300 bg-intima-beige',
+        menuOpen ? 'max-h-72 opacity-100 border-b border-intima-sand/40' : 'max-h-0 opacity-0'
       )}>
         <nav className="container-site py-6 flex flex-col gap-5">
           {links.map(({ href, label }) => (
@@ -89,7 +105,7 @@ export default function Navbar() {
               key={href}
               href={href}
               className={cn(
-                'font-body text-sm tracking-widest uppercase',
+                'font-body text-sm tracking-widest uppercase py-1',
                 pathname === href ? 'text-intima-brown' : 'text-intima-dark'
               )}
             >

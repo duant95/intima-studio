@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import AdminSidebar from '@/components/admin/AdminSidebar'
+import AdminMobileHeader from '@/components/admin/AdminMobileHeader'
 import { Toaster } from 'react-hot-toast'
 
 export default async function AdminLayout({
@@ -39,8 +40,9 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <AdminSidebar />
-      <main className="flex-1 ml-0 md:ml-64 transition-all">
-        <div className="p-6 md:p-10 max-w-6xl">
+      <AdminMobileHeader />
+      <main className="flex-1 ml-0 md:ml-64 transition-all pt-14 md:pt-0">
+        <div className="p-4 md:p-10 max-w-6xl">
           {children}
         </div>
       </main>

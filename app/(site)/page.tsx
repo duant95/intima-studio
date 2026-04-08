@@ -3,14 +3,28 @@ import { supabase, type Proyecto } from '@/lib/supabase'
 import ProjectCard from '@/components/ProjectCard'
 import FadeIn from '@/components/FadeIn'
 
+// Forzar que la página siempre traiga datos frescos de Supabase
+export const dynamic = 'force-dynamic'
+
 async function getProyectosDestacados(): Promise<Proyecto[]> {
-  const { data } = await supabase
+  // Primero intentar con destacados
+  const { data: destacados } = await supabase
     .from('proyectos')
     .select('*')
     .eq('destacado', true)
     .order('orden', { ascending: true })
     .limit(6)
-  return data ?? []
+
+  if (destacados && destacados.length > 0) return destacados
+
+  // Si no hay destacados, mostrar los más recientes
+  const { data: recientes } = await supabase
+    .from('proyectos')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(6)
+
+  return recientes ?? []
 }
 
 export default async function HomePage() {
@@ -19,39 +33,39 @@ export default async function HomePage() {
   return (
     <>
       {/* ─── HERO ─────────────────────────────────────────────── */}
-      <section className="relative min-h-screen flex items-end pb-20 overflow-hidden">
+      <section className="relative min-h-screen flex items-end pb-16 md:pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-intima-brown">
           <div className="absolute inset-0 bg-gradient-to-t from-intima-black/80 via-intima-black/30 to-intima-black/10" />
         </div>
         <div className="relative container-site w-full">
           <div className="max-w-2xl">
             <FadeIn delay={0.1}>
-              <p className="font-body text-intima-sand/70 text-xs tracking-widest uppercase mb-6">
+              <p className="font-body text-intima-sand/70 text-xs tracking-widest uppercase mb-5 md:mb-6">
                 Diseño de Interiores · Asunción, Paraguay
               </p>
             </FadeIn>
             <FadeIn delay={0.25}>
-              <h1 className="font-display text-intima-beige text-5xl md:text-7xl lg:text-8xl leading-none mb-8">
+              <h1 className="font-display text-intima-beige text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none mb-6 md:mb-8">
                 Espacios<br />
                 <span className="text-intima-sand italic">con alma</span>
               </h1>
             </FadeIn>
             <FadeIn delay={0.4}>
-              <p className="font-body text-intima-sand/80 text-lg max-w-md leading-relaxed mb-10">
+              <p className="font-body text-intima-sand/80 text-base md:text-lg max-w-md leading-relaxed mb-8 md:mb-10">
                 Transformamos ambientes en experiencias únicas, con atención meticulosa al detalle y un diseño que refleja quien sos.
               </p>
             </FadeIn>
             <FadeIn delay={0.55}>
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                 <Link
                   href="/galeria"
-                  className="inline-block bg-intima-beige text-intima-black font-body text-sm tracking-widest uppercase px-8 py-4 hover:bg-intima-sand transition-colors duration-300"
+                  className="inline-block text-center bg-intima-beige text-intima-black font-body text-xs tracking-widest uppercase px-7 py-4 hover:bg-intima-sand transition-colors duration-300"
                 >
                   Ver Proyectos
                 </Link>
                 <Link
                   href="/contacto"
-                  className="inline-block border border-intima-sand/40 text-intima-sand font-body text-sm tracking-widest uppercase px-8 py-4 hover:border-intima-sand hover:text-intima-beige transition-all duration-300"
+                  className="inline-block text-center border border-intima-sand/40 text-intima-sand font-body text-xs tracking-widest uppercase px-7 py-4 hover:border-intima-sand hover:text-intima-beige transition-all duration-300"
                 >
                   Contactanos
                 </Link>

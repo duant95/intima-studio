@@ -20,14 +20,14 @@ export default function GaleriaFiltrada({ proyectos, categorias }: Props) {
   return (
     <>
       {/* Filtros */}
-      <section className="bg-intima-beige border-b border-intima-sand/40 sticky top-[72px] z-30 backdrop-blur-sm bg-intima-beige/95">
+      <section className="bg-intima-beige border-b border-intima-sand/40 sticky top-[56px] md:top-[72px] z-30 backdrop-blur-sm bg-intima-beige/95">
         <div className="container-site py-4">
-          <div className="flex gap-6 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex gap-5 md:gap-6 overflow-x-auto pb-1 scrollbar-none -mx-4 px-4 md:mx-0 md:px-0">
             {categorias.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiva(cat)}
-                className="relative font-body text-xs tracking-widest uppercase whitespace-nowrap transition-colors duration-200 pb-1"
+                className="relative font-body text-xs tracking-widest uppercase whitespace-nowrap transition-colors duration-200 pb-1 py-1"
                 style={{ color: activa === cat ? '#5c5449' : '#393939aa' }}
               >
                 {cat}
