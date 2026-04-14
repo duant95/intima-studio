@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -10,11 +11,17 @@ export default function Footer() {
 
           {/* Marca */}
           <div className="col-span-2 md:col-span-1">
-            <p className="font-display text-intima-beige text-2xl mb-4">
-              Íntima<span className="font-body font-light text-intima-brown text-sm ml-1">.studio</span>
-            </p>
+            <Link href="/" className="inline-block mb-5">
+              <Image
+                src="/logo-studio-dark.png"
+                alt="Íntima Studio"
+                width={120}
+                height={34}
+                className="h-6 w-auto object-contain brightness-0 invert opacity-80"
+              />
+            </Link>
             <p className="font-body text-sm leading-relaxed text-intima-sand/60 max-w-xs">
-              Diseño de interiores con alma. Transformamos espacios en experiencias únicas.
+              Diseño de interiores y muebles a medida con alma. Transformamos espacios en experiencias únicas.
             </p>
           </div>
 
@@ -27,6 +34,7 @@ export default function Footer() {
               {[
                 { href: '/',         label: 'Inicio' },
                 { href: '/galeria',  label: 'Proyectos' },
+                { href: '/taller',   label: 'El Taller' },
                 { href: '/nosotros', label: 'Nosotros' },
                 { href: '/contacto', label: 'Contacto' },
               ].map(({ href, label }) => (
@@ -60,6 +68,14 @@ export default function Footer() {
                 className="hover:text-intima-beige transition-colors duration-200"
               >
                 @intima.studio
+              </a>
+              <a
+                href="https://instagram.com/crmeble"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-intima-beige transition-colors duration-200"
+              >
+                @crmeble · El Taller
               </a>
               <p className="text-intima-sand/50">Asunción, Paraguay</p>
             </div>

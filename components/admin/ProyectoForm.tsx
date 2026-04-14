@@ -17,7 +17,7 @@ type FormData = {
   orden: number
 }
 
-const CATEGORIAS = ['Residencial', 'Comercial', 'Oficinas', 'Hospitalidad', 'Otro']
+const CATEGORIAS = ['Residencial', 'Comercial', 'Oficinas', 'Hospitalidad', 'Mobiliario', 'Otro']
 
 interface Props {
   proyecto?: Proyecto

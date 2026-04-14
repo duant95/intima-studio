@@ -185,6 +185,83 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ─── EL TALLER ────────────────────────────────────────── */}
+      <section className="py-24 bg-intima-beige section-divider">
+        <div className="container-site">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16 items-center">
+            <FadeIn direction="left">
+              <p className="font-body text-xs tracking-widest uppercase text-intima-brown mb-4">
+                Fabricación propia
+              </p>
+              <h2 className="font-display text-4xl md:text-5xl text-intima-black leading-tight mb-6">
+                El Taller:<br />
+                <span className="italic">muebles a medida</span>
+              </h2>
+              <p className="font-body text-intima-dark/75 leading-relaxed mb-8">
+                Además del diseño de interiores, fabricamos muebles únicos a medida en nuestro propio taller. Piezas de autor pensadas para cada espacio.
+              </p>
+              <Link
+                href="/taller"
+                className="font-body text-sm tracking-widest uppercase text-intima-brown border-b border-intima-brown/40 pb-0.5 hover:border-intima-brown transition-colors duration-200"
+              >
+                Conocé El Taller →
+              </Link>
+            </FadeIn>
+            <FadeIn direction="right">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="aspect-square bg-intima-sand/30 flex items-center justify-center">
+                  <p className="font-display text-intima-brown/20 text-4xl">01</p>
+                </div>
+                <div className="aspect-square bg-intima-black flex items-center justify-center mt-6">
+                  <p className="font-display text-intima-beige/10 text-4xl">02</p>
+                </div>
+                <div className="aspect-square bg-intima-brown/10 flex items-center justify-center -mt-6">
+                  <p className="font-display text-intima-brown/20 text-4xl">03</p>
+                </div>
+                <div className="aspect-square bg-intima-sand/20 flex items-center justify-center">
+                  <p className="font-display text-intima-dark/10 text-4xl">04</p>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── INSTAGRAM ────────────────────────────────────────── */}
+      <section className="py-20 bg-intima-beige border-t border-intima-sand/30">
+        <div className="container-site text-center">
+          <FadeIn>
+            <p className="font-body text-xs tracking-widest uppercase text-intima-brown mb-4">
+              Seguinos
+            </p>
+            <h2 className="font-display text-3xl md:text-4xl text-intima-black mb-6">
+              @intima.studio
+            </h2>
+            <p className="font-body text-intima-dark/60 text-sm max-w-sm mx-auto mb-8 leading-relaxed">
+              Mirá nuestros proyectos, el proceso de diseño y las últimas novedades del estudio.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <a
+                href="https://instagram.com/intima.studio"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-intima-brown text-intima-beige font-body text-xs tracking-widest uppercase px-8 py-4 hover:bg-intima-black transition-colors duration-300"
+              >
+                Ver perfil · Diseño de interiores
+              </a>
+              <a
+                href="https://instagram.com/crmeble"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block border border-intima-brown/40 text-intima-brown font-body text-xs tracking-widest uppercase px-8 py-4 hover:border-intima-brown transition-all duration-300"
+              >
+                @crmeble · El Taller
+              </a>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* ─── CTA CONTACTO ─────────────────────────────────────── */}
       <section className="py-24 bg-intima-beige">
         <div className="container-site max-w-2xl mx-auto text-center">

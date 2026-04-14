@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { createSupabaseBrowser } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
@@ -37,12 +38,16 @@ export default function AdminSidebar() {
     <aside className="fixed left-0 top-0 bottom-0 w-64 bg-intima-black text-intima-sand hidden md:flex flex-col z-40">
 
       {/* Logo */}
-      <div className="px-7 py-7 border-b border-intima-dark">
-        <Link href="/" target="_blank" className="group">
-          <p className="font-display text-xl text-intima-beige group-hover:text-intima-sand transition-colors">
-            Íntima<span className="font-body font-light text-intima-brown text-xs ml-1">.studio</span>
-          </p>
-          <p className="font-body text-xs text-intima-sand/30 mt-0.5">Panel Admin</p>
+      <div className="px-7 py-6 border-b border-intima-dark">
+        <Link href="/" target="_blank" className="group block">
+          <Image
+            src="/logo-studio-dark.png"
+            alt="Íntima Studio"
+            width={120}
+            height={34}
+            className="h-6 w-auto object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity"
+          />
+          <p className="font-body text-xs text-intima-sand/30 mt-1.5">Panel Admin</p>
         </Link>
       </div>
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Menu, X } from 'lucide-react'
@@ -9,6 +10,7 @@ import { Menu, X } from 'lucide-react'
 const links = [
   { href: '/',         label: 'Inicio' },
   { href: '/galeria',  label: 'Proyectos' },
+  { href: '/taller',   label: 'El Taller' },
   { href: '/nosotros', label: 'Nosotros' },
   { href: '/contacto', label: 'Contacto' },
 ]
@@ -46,17 +48,17 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link href="/" className="group flex-shrink-0">
-          <span className="font-display text-xl md:text-2xl tracking-tight transition-colors duration-300">
-            <span className={cn('transition-colors duration-300', isLight ? 'text-intima-beige' : 'text-intima-black')}>
-              Íntima
-            </span>
-            <span className={cn(
-              'font-body font-light text-sm ml-1 transition-colors duration-300',
-              isLight ? 'text-intima-sand/80' : 'text-intima-brown'
-            )}>
-              .studio
-            </span>
-          </span>
+          <Image
+            src="/logo-studio-dark.png"
+            alt="Íntima Studio"
+            width={140}
+            height={40}
+            className={cn(
+              'h-7 md:h-8 w-auto object-contain transition-all duration-500',
+              isLight ? 'brightness-0 invert' : 'brightness-0'
+            )}
+            priority
+          />
         </Link>
 
         {/* Nav Desktop */}
@@ -97,7 +99,7 @@ export default function Navbar() {
       {/* Menú Mobile — siempre fondo beige */}
       <div className={cn(
         'md:hidden overflow-hidden transition-all duration-300 bg-intima-beige',
-        menuOpen ? 'max-h-72 opacity-100 border-b border-intima-sand/40' : 'max-h-0 opacity-0'
+        menuOpen ? 'max-h-96 opacity-100 border-b border-intima-sand/40' : 'max-h-0 opacity-0'
       )}>
         <nav className="container-site py-6 flex flex-col gap-5">
           {links.map(({ href, label }) => (
