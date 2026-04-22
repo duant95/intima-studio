@@ -79,7 +79,7 @@ export default async function ServiciosPage() {
       )}
 
       {/* Todos los paquetes con filtro */}
-      <ServiciosGrid paquetes={paquetes} categorias={categorias} formatPrecio={formatPrecio} />
+      <ServiciosGrid paquetes={paquetes} categorias={categorias} />
 
       {/* CTA personalizado */}
       <section className="py-20 bg-intima-black text-intima-beige">

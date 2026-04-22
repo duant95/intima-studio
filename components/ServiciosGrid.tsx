@@ -7,10 +7,13 @@ import type { Paquete } from '@/app/(site)/servicios/page'
 interface Props {
   paquetes: Paquete[]
   categorias: string[]
-  formatPrecio: (n: number) => string
 }
 
-export default function ServiciosGrid({ paquetes, categorias, formatPrecio }: Props) {
+// Definida aquí dentro del Client Component para evitar pasarla como prop desde el Server Component
+const formatPrecio = (precio: number) =>
+  new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', minimumFractionDigits: 0 }).format(precio)
+
+export default function ServiciosGrid({ paquetes, categorias }: Props) {
   const [activa, setActiva] = useState('Todos')
 
   const filtrados = activa === 'Todos' ? paquetes : paquetes.filter((p) => p.categoria === activa)
