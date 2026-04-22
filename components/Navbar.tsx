@@ -8,11 +8,12 @@ import { cn } from '@/lib/utils'
 import { Menu, X } from 'lucide-react'
 
 const links = [
-  { href: '/',         label: 'Inicio' },
-  { href: '/galeria',  label: 'Proyectos' },
-  { href: '/taller',   label: 'El Taller' },
-  { href: '/nosotros', label: 'Nosotros' },
-  { href: '/contacto', label: 'Contacto' },
+  { href: '/',          label: 'Inicio' },
+  { href: '/galeria',   label: 'Proyectos' },
+  { href: '/taller',    label: 'El Taller' },
+  { href: '/servicios', label: 'Servicios' },
+  { href: '/nosotros',  label: 'Nosotros' },
+  { href: '/contacto',  label: 'Contacto' },
 ]
 
 // Páginas que tienen hero oscuro — el navbar arranca en blanco

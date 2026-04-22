@@ -12,14 +12,16 @@ import {
   Settings,
   LogOut,
   PlusSquare,
+  ShoppingBag,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 const navItems = [
-  { href: '/admin',             label: 'Dashboard',  icon: LayoutDashboard },
-  { href: '/admin/proyectos',   label: 'Proyectos',  icon: Images },
-  { href: '/admin/mensajes',    label: 'Mensajes',   icon: MessageSquare },
-  { href: '/admin/configuracion', label: 'Config',   icon: Settings },
+  { href: '/admin',               label: 'Dashboard',  icon: LayoutDashboard },
+  { href: '/admin/proyectos',     label: 'Proyectos',  icon: Images },
+  { href: '/admin/servicios',     label: 'Servicios',  icon: ShoppingBag },
+  { href: '/admin/mensajes',      label: 'Mensajes',   icon: MessageSquare },
+  { href: '/admin/configuracion', label: 'Config',     icon: Settings },
 ]
 
 export default function AdminSidebar() {

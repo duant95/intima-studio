@@ -1,0 +1,39 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
+import { createAdminClient } from '@/lib/supabase'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
+
+async function getSession() {
+  const cookieStore = cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { get: (n: string) => cookieStore.get(n)?.value, set: () => {}, remove: () => {} } }
+  )
+  const { data: { session } } = await supabase.auth.getSession()
+  return session
+}
+
+interface Params { params: { id: string } }
+
+export async function PUT(req: NextRequest, { params }: Params) {
+  const session = await getSession()
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+  const body = await req.json()
+  const supabase = createAdminClient()
+  const { data, error } = await supabase.from('paquetes').update(body).eq('id', params.id).select().single()
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidatePath('/servicios')
+  return NextResponse.json(data)
+}
+
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  const session = await getSession()
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+  const supabase = createAdminClient()
+  const { error } = await supabase.from('paquetes').delete().eq('id', params.id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  revalidatePath('/servicios')
+  return NextResponse.json({ success: true })
+}

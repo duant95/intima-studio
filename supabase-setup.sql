@@ -110,3 +110,37 @@ CREATE POLICY "config_upsert_auth"
 
 CREATE POLICY "config_update_auth"
   ON config_site FOR UPDATE USING (auth.role() = 'authenticated');
+
+-- ─── TABLA PAQUETES (servicios/precios) ─────────────────────────────────────
+create table if not exists paquetes (
+  id          uuid        default gen_random_uuid() primary key,
+  nombre      text        not null,
+  descripcion text,
+  precio      numeric(12,0),
+  imagen_url  text,
+  incluye     text[]      default '{}',
+  categoria   text        not null default 'Residencial',
+  activo      boolean     not null default true,
+  destacado   boolean     not null default false,
+  orden       integer     not null default 99,
+  created_at  timestamptz default now()
+);
+
+alter table paquetes enable row level security;
+
+create policy "paquetes_public_read"
+  on paquetes for select
+  using (activo = true);
+
+create policy "paquetes_admin_all"
+  on paquetes for all
+  using (auth.role() = 'authenticated');
+
+-- Datos de ejemplo para empezar
+insert into paquetes (nombre, descripcion, precio, incluye, categoria, destacado, orden) values
+  ('Diseño de Dormitorio',   'Proyecto completo de diseño de dormitorio principal.',  3500000, array['Proyecto 3D completo','Planos de construcción','Lista de compras','2 revisiones incluidas'], 'Dormitorio', true, 1),
+  ('Diseño de Cocina',       'Proyecto integral de cocina con optimización de espacios.', 4800000, array['Proyecto 3D completo','Planos técnicos','Lista de materiales','Asesoría en compras'], 'Cocina', true, 2),
+  ('Diseño de Baño',         'Rediseño completo de baño con selección de materiales.', 3800000, array['Proyecto 3D completo','Planos de obra','Lista de compras','1 visita de supervisión'], 'Baño', true, 3),
+  ('Diseño de Living',       'Transformá tu sala de estar en un espacio único.', 4200000, array['Proyecto 3D completo','Planos de mobiliario','Paleta de materiales','2 revisiones incluidas'], 'Living', false, 4),
+  ('Diseño de Patio/Jardín', 'Diseño paisajístico integral para exteriores.',          4800000, array['Proyecto 3D completo','Plano de paisajismo','Lista de plantas y materiales'], 'Exterior', false, 5),
+  ('Diseño de Oficina',      'Espacios de trabajo que potencian la productividad.',    3200000, array['Proyecto 3D completo','Planos de layout','Selección de mobiliario','Asesoría en ergonomía'], 'Oficina', false, 6);

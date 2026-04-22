@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import CRMebleLogo from '@/components/CRMebleLogo'
 
 export default function Footer() {
   const year = new Date().getFullYear()
@@ -34,7 +35,8 @@ export default function Footer() {
               {[
                 { href: '/',         label: 'Inicio' },
                 { href: '/galeria',  label: 'Proyectos' },
-                { href: '/taller',   label: 'El Taller' },
+                { href: '/taller',    label: 'El Taller' },
+              { href: '/servicios', label: 'Servicios' },
                 { href: '/nosotros', label: 'Nosotros' },
                 { href: '/contacto', label: 'Contacto' },
               ].map(({ href, label }) => (
@@ -80,6 +82,14 @@ export default function Footer() {
               <p className="text-intima-sand/50">Asunción, Paraguay</p>
             </div>
           </div>
+        </div>
+
+        {/* CR Mueble */}
+        <div className="mt-10 pt-8 border-t border-intima-dark flex items-center gap-4">
+          <p className="font-body text-xs text-intima-sand/30 tracking-widest uppercase">El Taller ·</p>
+          <Link href="/taller">
+            <CRMebleLogo color="#a08882" size="sm" className="opacity-60 hover:opacity-90 transition-opacity" />
+          </Link>
         </div>
 
         {/* Bottom */}

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { supabase, type Proyecto } from '@/lib/supabase'
 import ProjectCard from '@/components/ProjectCard'
 import FadeIn from '@/components/FadeIn'
+import CRMebleLogo from '@/components/CRMebleLogo'
 import { ArrowRight } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -76,6 +77,9 @@ export default async function TallerPage() {
         <div className="relative container-site w-full">
           <div className="max-w-2xl">
             <FadeIn delay={0.1}>
+              <div className="mb-6">
+                <CRMebleLogo color="#a08882" size="md" />
+              </div>
               <p className="font-body text-xs tracking-widest uppercase text-intima-brown mb-5">
                 Íntima Studio · Fabricación propia
               </p>
