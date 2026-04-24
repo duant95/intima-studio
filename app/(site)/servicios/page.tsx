@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { supabase } from '@/lib/supabase'
+import { getSiteConfig } from '@/lib/config'
 import ServiciosGrid from '@/components/ServiciosGrid'
 import FadeIn from '@/components/FadeIn'
 import Link from 'next/link'
@@ -39,13 +40,13 @@ async function getPaquetes() {
   return (data ?? []) as Paquete[]
 }
 
+const formatPrecio = (precio: number) =>
+  new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', minimumFractionDigits: 0 }).format(precio)
+
 export default async function ServiciosPage() {
-  const paquetes = await getPaquetes()
+  const [paquetes, config] = await Promise.all([getPaquetes(), getSiteConfig()])
   const destacados = paquetes.filter((p) => p.destacado)
   const categorias = ['Todos', ...Array.from(new Set(paquetes.map((p) => p.categoria)))]
-
-  const formatPrecio = (precio: number) =>
-    new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', minimumFractionDigits: 0 }).format(precio)
 
   return (
     <>
@@ -77,7 +78,7 @@ export default async function ServiciosPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {destacados.map((p, i) => (
                 <FadeIn key={p.id} delay={i * 0.08}>
-                  <PaqueteCard paquete={p} formatPrecio={formatPrecio} destacado />
+                  <PaqueteCard paquete={p} formatPrecio={formatPrecio} destacado waNumero={config.whatsapp_numero} />
                 </FadeIn>
               ))}
             </div>
@@ -114,20 +115,20 @@ export default async function ServiciosPage() {
   )
 }
 
-// Card component (inline para esta página)
-function PaqueteCard({ paquete, formatPrecio, destacado }: {
+// Card component — destacados (la grid usa ServiciosGrid que ya linkea a /servicios/[id])
+function PaqueteCard({ paquete, formatPrecio, destacado, waNumero }: {
   paquete: Paquete
   formatPrecio: (n: number) => string
   destacado?: boolean
+  waNumero: string
 }) {
   const waMsg = encodeURIComponent(
     `Hola! Me interesa el paquete *${paquete.nombre}*. ¿Me pueden dar más información?`
   )
-  const waUrl = `https://wa.me/595981132221?text=${waMsg}`
+  const waUrl = `https://wa.me/${waNumero}?text=${waMsg}`
 
   return (
     <div className={`group flex flex-col bg-white border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${destacado ? 'border-intima-sand' : 'border-gray-100'}`}>
-      {/* Imagen */}
       <div className="relative aspect-[4/3] bg-intima-sand/20 overflow-hidden">
         {paquete.imagen_url ? (
           <img src={paquete.imagen_url} alt={paquete.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -143,7 +144,6 @@ function PaqueteCard({ paquete, formatPrecio, destacado }: {
         </div>
       </div>
 
-      {/* Info */}
       <div className="flex flex-col flex-1 p-5">
         <h3 className="font-body font-medium text-intima-black text-sm leading-snug mb-2 flex-1">
           {paquete.nombre}
@@ -153,8 +153,6 @@ function PaqueteCard({ paquete, formatPrecio, destacado }: {
             {paquete.descripcion}
           </p>
         )}
-
-        {/* Incluye */}
         {paquete.incluye?.length > 0 && (
           <ul className="mb-4 space-y-1">
             {paquete.incluye.map((item, i) => (
@@ -165,8 +163,6 @@ function PaqueteCard({ paquete, formatPrecio, destacado }: {
             ))}
           </ul>
         )}
-
-        {/* Precio + CTA */}
         <div className="border-t border-gray-100 pt-4 mt-auto">
           {paquete.precio && (
             <p className="font-display text-xl text-intima-black mb-3">

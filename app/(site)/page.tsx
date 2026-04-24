@@ -63,18 +63,24 @@ export default async function HomePage() {
           <div className="max-w-2xl">
             <FadeIn delay={0.1}>
               <p className="font-body text-intima-sand/70 text-xs tracking-widest uppercase mb-5 md:mb-6">
-                Diseño de Interiores · Asunción, Paraguay
+                {config.inicio_hero_subtitulo}
               </p>
             </FadeIn>
             <FadeIn delay={0.25}>
               <h1 className="font-display text-intima-beige text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-none mb-6 md:mb-8">
-                Espacios<br />
-                <span className="text-intima-sand italic">con alma</span>
+                {config.inicio_hero_titulo.includes('\n') ? (
+                  <>
+                    {config.inicio_hero_titulo.split('\n')[0]}<br />
+                    <span className="text-intima-sand italic">{config.inicio_hero_titulo.split('\n').slice(1).join(' ')}</span>
+                  </>
+                ) : (
+                  config.inicio_hero_titulo
+                )}
               </h1>
             </FadeIn>
             <FadeIn delay={0.4}>
               <p className="font-body text-intima-sand/80 text-base md:text-lg max-w-md leading-relaxed mb-8 md:mb-10">
-                Transformamos ambientes en experiencias únicas, con atención meticulosa al detalle y un diseño que refleja quien sos.
+                {config.inicio_hero_descripcion}
               </p>
             </FadeIn>
             <FadeIn delay={0.55}>
@@ -107,16 +113,15 @@ export default async function HomePage() {
                   Nuestro enfoque
                 </p>
                 <h2 className="font-display text-4xl md:text-5xl text-intima-black leading-tight mb-6">
-                  El lujo está en los detalles
+                  {config.inicio_intro_titulo}
                 </h2>
               </FadeIn>
               <FadeIn delay={0.15} direction="left">
-                <p className="font-body text-intima-dark/80 leading-relaxed mb-4">
-                  En Íntima Studio creemos que cada espacio tiene su propia esencia. Trabajamos para descubrirla, potenciarla y traducirla en un diseño que va más allá de lo estético.
-                </p>
-                <p className="font-body text-intima-dark/70 leading-relaxed mb-8">
-                  Nuestro proceso es completamente personalizado. Desde la primera conversación hasta la entrega final, estamos con vos en cada decisión.
-                </p>
+                {config.inicio_intro_texto.split('\n').filter(Boolean).map((p, i) => (
+                  <p key={i} className="font-body text-intima-dark/80 leading-relaxed mb-4">
+                    {p}
+                  </p>
+                ))}
                 <Link
                   href="/nosotros"
                   className="font-body text-sm tracking-widest uppercase text-intima-brown border-b border-intima-brown/40 pb-0.5 hover:border-intima-brown transition-colors duration-200"
@@ -279,10 +284,10 @@ export default async function HomePage() {
               ¿Tenés un proyecto en mente?
             </p>
             <h2 className="font-display text-4xl md:text-5xl text-intima-black mb-6 leading-tight">
-              Hablemos de tu espacio
+              {config.inicio_cta_titulo}
             </h2>
             <p className="font-body text-intima-dark/70 leading-relaxed mb-10">
-              Cada gran proyecto empieza con una conversación. Contanos qué tenés en mente y te responderemos a la brevedad.
+              {config.inicio_cta_descripcion}
             </p>
             <Link
               href="/contacto"

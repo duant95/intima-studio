@@ -21,7 +21,7 @@ const navItems = [
   { href: '/admin/proyectos',     label: 'Proyectos',  icon: Images },
   { href: '/admin/servicios',     label: 'Servicios',  icon: ShoppingBag },
   { href: '/admin/mensajes',      label: 'Mensajes',   icon: MessageSquare },
-  { href: '/admin/configuracion', label: 'Config',     icon: Settings },
+  { href: '/admin/configuracion', label: 'Configuración', icon: Settings },
 ]
 
 export default function AdminSidebar() {

@@ -186,3 +186,32 @@ on conflict (clave) do nothing;
 
 alter table paquetes
   add column if not exists proceso jsonb default '[]'::jsonb;
+
+-- ═══════════════════════════════════════════════════════════════
+-- CONFIGURACIÓN — claves de texto editables desde el admin
+-- Ejecutá en Supabase > SQL Editor si ya corriste el script anterior
+-- ═══════════════════════════════════════════════════════════════
+
+insert into configuracion (clave, valor) values
+  -- Textos de la página de Inicio
+  ('inicio_hero_subtitulo',  'Diseño de Interiores · Asunción, Paraguay'),
+  ('inicio_hero_titulo',     'Espacios con alma'),
+  ('inicio_hero_descripcion','Transformamos ambientes en experiencias únicas, con atención meticulosa al detalle y un diseño que refleja quien sos.'),
+  ('inicio_intro_titulo',    'El lujo está en los detalles'),
+  ('inicio_intro_texto',     'En Íntima Studio creemos que cada espacio tiene su propia esencia. Trabajamos para descubrirla, potenciarla y traducirla en un diseño que va más allá de lo estético.\nNuestro proceso es completamente personalizado. Desde la primera conversación hasta la entrega final, estamos con vos en cada decisión.'),
+  ('inicio_cta_titulo',      'Hablemos de tu espacio'),
+  ('inicio_cta_descripcion', 'Cada gran proyecto empieza con una conversación. Contanos qué tenés en mente y te responderemos a la brevedad.'),
+  -- Textos de la página Nosotros
+  ('nosotros_intro',         'Íntima Studio nació de la convicción de que los espacios en los que vivimos y trabajamos nos moldean tanto como nosotros a ellos.'),
+  ('nosotros_descripcion',   'Somos un estudio boutique especializado en diseño de interiores residencial y comercial. Creemos en el diseño que surge del diálogo profundo con cada cliente.\nCada proyecto es único porque cada persona lo es. No trabajamos con fórmulas prefabricadas: entendemos tu estilo de vida, tus gustos y tus necesidades antes de trazar la primera línea.\nNos destacamos por un proceso de diseño transparente, una comunicación constante y un resultado que supera las expectativas.'),
+  ('nosotros_stat_1_num',    '+50'),
+  ('nosotros_stat_1_label',  'Proyectos realizados'),
+  ('nosotros_stat_2_num',    '5+'),
+  ('nosotros_stat_2_label',  'Años de experiencia'),
+  -- Textos de la página Contacto
+  ('contacto_email',         'hola@intimastudio.com'),
+  ('contacto_instagram',     'intima.studio'),
+  ('contacto_ubicacion',     'Asunción, Paraguay'),
+  -- El Taller — tipos de muebles (JSON)
+  ('taller_tipos',           '[{"imagen_url":"","nombre":"Mesas & Escritorios","desc":"Comedor, centro, auxiliares y escritorios de trabajo."},{"imagen_url":"","nombre":"Módulos & Estanterías","desc":"Bibliotecas, aparadores, módulos de TV y walk-in closets."},{"imagen_url":"","nombre":"Sillas & Sillones","desc":"Asientos de diseño con tapizados exclusivos."},{"imagen_url":"","nombre":"Camas & Cabeceras","desc":"Plataformas y cabeceras tapizadas o en madera."},{"imagen_url":"","nombre":"Baños & Vanitorios","desc":"Muebles de baño a medida con materiales resistentes."},{"imagen_url":"","nombre":"Piezas de exterior","desc":"Mobiliario para terrazas y espacios al aire libre."}]')
+on conflict (clave) do nothing;
