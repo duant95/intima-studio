@@ -9,18 +9,24 @@ export const metadata: Metadata = {
   description: 'Galería de proyectos de diseño de interiores de Íntima Studio.',
 }
 
-const CATEGORIAS = ['Todos', 'Residencial', 'Comercial', 'Oficinas', 'Hospitalidad']
+// Categorías que pertenecen a El Taller (no galería de diseño)
+const CATEGORIAS_TALLER = ['Mobiliario', 'Muebles']
 
 async function getProyectos(): Promise<Proyecto[]> {
   const { data } = await supabase
     .from('proyectos')
     .select('*')
+    .not('categoria', 'in', `(${CATEGORIAS_TALLER.join(',')})`)
     .order('orden', { ascending: true })
   return data ?? []
 }
 
 export default async function GaleriaPage() {
   const proyectos = await getProyectos()
+
+  // Categorías dinámicas desde los proyectos reales
+  const categoriasUnicas = Array.from(new Set(proyectos.map((p) => p.categoria))).filter(Boolean)
+  const categorias = ['Todos', ...categoriasUnicas]
 
   return (
     <>
@@ -37,7 +43,7 @@ export default async function GaleriaPage() {
       </section>
 
       {/* Filtros interactivos + grid animado */}
-      <GaleriaFiltrada proyectos={proyectos} categorias={CATEGORIAS} />
+      <GaleriaFiltrada proyectos={proyectos} categorias={categorias} />
     </>
   )
 }

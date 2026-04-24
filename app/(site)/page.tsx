@@ -1,13 +1,13 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { supabase, type Proyecto } from '@/lib/supabase'
+import { getSiteConfig } from '@/lib/config'
 import ProjectCard from '@/components/ProjectCard'
 import FadeIn from '@/components/FadeIn'
 
-// Forzar que la página siempre traiga datos frescos de Supabase
 export const dynamic = 'force-dynamic'
 
 async function getProyectosDestacados(): Promise<Proyecto[]> {
-  // Mostrar destacados primero, luego completar con más recientes hasta 6
   const { data: destacados } = await supabase
     .from('proyectos')
     .select('*')
@@ -17,7 +17,6 @@ async function getProyectosDestacados(): Promise<Proyecto[]> {
 
   if (destacados && destacados.length >= 6) return destacados
 
-  // Completar con proyectos recientes que no estén ya en destacados
   const idsDestacados = (destacados ?? []).map((p) => p.id)
   const restantes = 6 - (destacados?.length ?? 0)
 
@@ -32,14 +31,33 @@ async function getProyectosDestacados(): Promise<Proyecto[]> {
 }
 
 export default async function HomePage() {
-  const proyectosDestacados = await getProyectosDestacados()
+  const [proyectosDestacados, config] = await Promise.all([
+    getProyectosDestacados(),
+    getSiteConfig(),
+  ])
+
+  const tallerImagenes = [
+    config.taller_home_imagen_1,
+    config.taller_home_imagen_2,
+    config.taller_home_imagen_3,
+    config.taller_home_imagen_4,
+  ]
 
   return (
     <>
       {/* ─── HERO ─────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-end pb-16 md:pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-intima-brown">
-          <div className="absolute inset-0 bg-gradient-to-t from-intima-black/80 via-intima-black/30 to-intima-black/10" />
+        <div className="absolute inset-0 bg-intima-black">
+          {config.hero_imagen_url ? (
+            <Image
+              src={config.hero_imagen_url}
+              alt="Íntima Studio"
+              fill
+              priority
+              className="object-cover opacity-60"
+            />
+          ) : null}
+          <div className="absolute inset-0 bg-gradient-to-t from-intima-black/90 via-intima-black/40 to-intima-black/10" />
         </div>
         <div className="relative container-site w-full">
           <div className="max-w-2xl">
@@ -108,10 +126,21 @@ export default async function HomePage() {
               </FadeIn>
             </div>
             <FadeIn direction="right">
-              <div className="relative aspect-[4/5] bg-intima-sand/40 flex items-center justify-center">
-                <p className="font-body text-xs tracking-widest uppercase text-intima-brown/40">
-                  Imagen del estudio
-                </p>
+              <div className="relative aspect-[4/5] bg-intima-sand/40 overflow-hidden">
+                {config.intro_imagen_url ? (
+                  <Image
+                    src={config.intro_imagen_url}
+                    alt="Íntima Studio"
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <p className="font-body text-xs tracking-widest uppercase text-intima-brown/30">
+                      Imagen del estudio
+                    </p>
+                  </div>
+                )}
               </div>
             </FadeIn>
           </div>
@@ -159,32 +188,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ─── VALORES ──────────────────────────────────────────── */}
-      <section className="py-24 bg-intima-black text-intima-beige">
-        <div className="container-site">
-          <FadeIn>
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-5xl">Lo que nos define</h2>
-            </div>
-          </FadeIn>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            {[
-              { valor: 'Calidad',     desc: 'Materiales y procesos de la más alta exigencia.' },
-              { valor: 'Innovación',  desc: 'Soluciones creativas que desafían lo convencional.' },
-              { valor: 'Audacia',     desc: 'Diseños que se atreven a ser diferentes.' },
-              { valor: 'Experiencia', desc: 'Años transformando espacios en experiencias.' },
-            ].map(({ valor, desc }, i) => (
-              <FadeIn key={valor} delay={i * 0.1}>
-                <div className="text-center">
-                  <p className="font-display text-2xl md:text-3xl text-intima-sand mb-3">{valor}</p>
-                  <p className="font-body text-sm text-intima-sand/50 leading-relaxed">{desc}</p>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── EL TALLER ────────────────────────────────────────── */}
       <section className="py-24 bg-intima-beige section-divider">
         <div className="container-site">
@@ -209,18 +212,24 @@ export default async function HomePage() {
             </FadeIn>
             <FadeIn direction="right">
               <div className="grid grid-cols-2 gap-3">
-                <div className="aspect-square bg-intima-sand/30 flex items-center justify-center">
-                  <p className="font-display text-intima-brown/20 text-4xl">01</p>
-                </div>
-                <div className="aspect-square bg-intima-black flex items-center justify-center mt-6">
-                  <p className="font-display text-intima-beige/10 text-4xl">02</p>
-                </div>
-                <div className="aspect-square bg-intima-brown/10 flex items-center justify-center -mt-6">
-                  <p className="font-display text-intima-brown/20 text-4xl">03</p>
-                </div>
-                <div className="aspect-square bg-intima-sand/20 flex items-center justify-center">
-                  <p className="font-display text-intima-dark/10 text-4xl">04</p>
-                </div>
+                {tallerImagenes.map((url, i) => (
+                  <div
+                    key={i}
+                    className={`aspect-square overflow-hidden bg-intima-sand/30 flex items-center justify-center ${i === 1 ? 'mt-6' : ''} ${i === 2 ? '-mt-6' : ''}`}
+                  >
+                    {url ? (
+                      <Image
+                        src={url}
+                        alt={`El Taller ${i + 1}`}
+                        width={300}
+                        height={300}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <p className="font-display text-intima-brown/20 text-4xl">0{i + 1}</p>
+                    )}
+                  </div>
+                ))}
               </div>
             </FadeIn>
           </div>

@@ -144,3 +144,45 @@ insert into paquetes (nombre, descripcion, precio, incluye, categoria, destacado
   ('Diseño de Living',       'Transformá tu sala de estar en un espacio único.', 4200000, array['Proyecto 3D completo','Planos de mobiliario','Paleta de materiales','2 revisiones incluidas'], 'Living', false, 4),
   ('Diseño de Patio/Jardín', 'Diseño paisajístico integral para exteriores.',          4800000, array['Proyecto 3D completo','Plano de paisajismo','Lista de plantas y materiales'], 'Exterior', false, 5),
   ('Diseño de Oficina',      'Espacios de trabajo que potencian la productividad.',    3200000, array['Proyecto 3D completo','Planos de layout','Selección de mobiliario','Asesoría en ergonomía'], 'Oficina', false, 6);
+
+-- ═══════════════════════════════════════════════════════════════
+-- CONFIGURACIÓN DEL SITIO — tabla clave-valor para imágenes y ajustes
+-- Ejecutá en Supabase > SQL Editor
+-- ═══════════════════════════════════════════════════════════════
+
+create table if not exists configuracion (
+  clave       text primary key,
+  valor       text,
+  updated_at  timestamptz default now()
+);
+
+alter table configuracion enable row level security;
+
+create policy "config_public_read"
+  on configuracion for select
+  using (true);
+
+create policy "config_admin_write"
+  on configuracion for all
+  using (auth.role() = 'authenticated');
+
+-- Valores por defecto
+insert into configuracion (clave, valor) values
+  ('whatsapp_numero',       '595981132221'),
+  ('whatsapp_mensaje',      '¡Hola! Me gustaría consultar sobre un proyecto de diseño de interiores.'),
+  ('hero_imagen_url',       ''),
+  ('intro_imagen_url',      ''),
+  ('taller_home_imagen_1',  ''),
+  ('taller_home_imagen_2',  ''),
+  ('taller_home_imagen_3',  ''),
+  ('taller_home_imagen_4',  ''),
+  ('nosotros_imagen_url',   ''),
+  ('og_imagen_url',         '')
+on conflict (clave) do nothing;
+
+-- ═══════════════════════════════════════════════════════════════
+-- PROCESO en paquetes — columna para etapas del servicio
+-- ═══════════════════════════════════════════════════════════════
+
+alter table paquetes
+  add column if not exists proceso jsonb default '[]'::jsonb;

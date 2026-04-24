@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Paquete } from '@/app/(site)/servicios/page'
@@ -9,7 +10,6 @@ interface Props {
   categorias: string[]
 }
 
-// Definida aquí dentro del Client Component para evitar pasarla como prop desde el Server Component
 const formatPrecio = (precio: number) =>
   new Intl.NumberFormat('es-PY', { style: 'currency', currency: 'PYG', minimumFractionDigits: 0 }).format(precio)
 
@@ -17,9 +17,6 @@ export default function ServiciosGrid({ paquetes, categorias }: Props) {
   const [activa, setActiva] = useState('Todos')
 
   const filtrados = activa === 'Todos' ? paquetes : paquetes.filter((p) => p.categoria === activa)
-
-  const waMsg = (nombre: string) =>
-    encodeURIComponent(`Hola! Me interesa el paquete *${nombre}*. ¿Me pueden dar más información?`)
 
   return (
     <section className="py-14 bg-intima-beige">
@@ -56,54 +53,56 @@ export default function ServiciosGrid({ paquetes, categorias }: Props) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3, delay: i * 0.04 }}
-                className="group flex flex-col bg-white border border-gray-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
               >
-                {/* Imagen */}
-                <div className="relative aspect-[4/3] bg-intima-sand/20 overflow-hidden">
-                  {p.imagen_url ? (
-                    <img src={p.imagen_url} alt={p.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="font-body text-xs tracking-widest uppercase text-intima-brown/30">{p.categoria}</span>
-                    </div>
-                  )}
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-intima-beige font-body text-xs tracking-widest uppercase text-intima-brown px-2 py-1">
-                      {p.categoria}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Info */}
-                <div className="flex flex-col flex-1 p-5">
-                  <h3 className="font-body font-medium text-intima-black text-sm leading-snug mb-2">{p.nombre}</h3>
-                  {p.descripcion && (
-                    <p className="font-body text-xs text-intima-dark/60 leading-relaxed mb-3 line-clamp-2">{p.descripcion}</p>
-                  )}
-                  {p.incluye?.length > 0 && (
-                    <ul className="mb-4 space-y-1 flex-1">
-                      {p.incluye.map((item, idx) => (
-                        <li key={idx} className="font-body text-xs text-intima-dark/70 flex items-start gap-1.5">
-                          <span className="text-intima-brown mt-0.5 flex-shrink-0">✓</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <div className="border-t border-gray-100 pt-4 mt-auto">
-                    {p.precio && (
-                      <p className="font-display text-xl text-intima-black mb-3">{formatPrecio(p.precio)}</p>
+                <Link
+                  href={`/servicios/${p.id}`}
+                  className="group flex flex-col bg-white border border-gray-100 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 h-full"
+                >
+                  {/* Imagen */}
+                  <div className="relative aspect-[4/3] bg-intima-sand/20 overflow-hidden">
+                    {p.imagen_url ? (
+                      <img src={p.imagen_url} alt={p.nombre} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="font-body text-xs tracking-widest uppercase text-intima-brown/30">{p.categoria}</span>
+                      </div>
                     )}
-                    <a
-                      href={`https://wa.me/595981132221?text=${waMsg(p.nombre)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block text-center bg-intima-brown text-intima-beige font-body text-xs tracking-widest uppercase px-4 py-3 hover:bg-intima-black transition-colors duration-300"
-                    >
-                      Consultar por WhatsApp
-                    </a>
+                    <div className="absolute top-3 left-3">
+                      <span className="bg-intima-beige font-body text-xs tracking-widest uppercase text-intima-brown px-2 py-1">
+                        {p.categoria}
+                      </span>
+                    </div>
                   </div>
-                </div>
+
+                  {/* Info */}
+                  <div className="flex flex-col flex-1 p-5">
+                    <h3 className="font-body font-medium text-intima-black text-sm leading-snug mb-2">{p.nombre}</h3>
+                    {p.descripcion && (
+                      <p className="font-body text-xs text-intima-dark/60 leading-relaxed mb-3 line-clamp-2">{p.descripcion}</p>
+                    )}
+                    {p.incluye?.length > 0 && (
+                      <ul className="mb-4 space-y-1 flex-1">
+                        {p.incluye.slice(0, 3).map((item, idx) => (
+                          <li key={idx} className="font-body text-xs text-intima-dark/70 flex items-start gap-1.5">
+                            <span className="text-intima-brown mt-0.5 flex-shrink-0">✓</span>
+                            {item}
+                          </li>
+                        ))}
+                        {p.incluye.length > 3 && (
+                          <li className="font-body text-xs text-intima-brown/60 mt-1">+{p.incluye.length - 3} más incluido{p.incluye.length - 3 !== 1 ? 's' : ''}...</li>
+                        )}
+                      </ul>
+                    )}
+                    <div className="border-t border-gray-100 pt-4 mt-auto flex items-center justify-between">
+                      {p.precio ? (
+                        <p className="font-display text-xl text-intima-black">{formatPrecio(p.precio)}</p>
+                      ) : <span />}
+                      <span className="font-body text-xs tracking-widest uppercase text-intima-brown group-hover:translate-x-1 transition-transform duration-200">
+                        Ver →
+                      </span>
+                    </div>
+                  </div>
+                </Link>
               </motion.div>
             ))}
           </AnimatePresence>

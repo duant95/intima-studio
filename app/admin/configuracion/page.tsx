@@ -3,74 +3,94 @@
 import { useState, useEffect } from 'react'
 import { createSupabaseBrowser } from '@/lib/supabase'
 import toast from 'react-hot-toast'
-import { Save, RefreshCw } from 'lucide-react'
+import { Save, RefreshCw, Upload, X } from 'lucide-react'
 
 type Config = {
-  hero_titulo: string
-  hero_subtitulo: string
-  hero_descripcion: string
-  intro_titulo: string
-  intro_descripcion: string
-  nosotros_bajada: string
-  footer_email: string
-  footer_instagram: string
-  footer_telefono: string
   whatsapp_numero: string
   whatsapp_mensaje: string
+  hero_imagen_url: string
+  intro_imagen_url: string
+  taller_home_imagen_1: string
+  taller_home_imagen_2: string
+  taller_home_imagen_3: string
+  taller_home_imagen_4: string
+  nosotros_imagen_url: string
+  og_imagen_url: string
 }
 
 const DEFAULTS: Config = {
-  hero_titulo: 'Espacios con alma',
-  hero_subtitulo: 'Diseño de Interiores · Asunción, Paraguay',
-  hero_descripcion: 'Transformamos ambientes en experiencias únicas, con atención meticulosa al detalle y un diseño que refleja quien sos.',
-  intro_titulo: 'El lujo está en los detalles',
-  intro_descripcion: 'En Íntima Studio creemos que cada espacio tiene su propia esencia.',
-  nosotros_bajada: 'Estudio de diseño de interiores en Asunción, Paraguay.',
-  footer_email: 'hola@intimastudio.com',
-  footer_instagram: '@intima.studio',
-  footer_telefono: '',
-  whatsapp_numero: '595991234567',
+  whatsapp_numero: '595981132221',
   whatsapp_mensaje: '¡Hola! Me gustaría consultar sobre un proyecto de diseño de interiores.',
+  hero_imagen_url: '',
+  intro_imagen_url: '',
+  taller_home_imagen_1: '',
+  taller_home_imagen_2: '',
+  taller_home_imagen_3: '',
+  taller_home_imagen_4: '',
+  nosotros_imagen_url: '',
+  og_imagen_url: '',
 }
 
-const SECCIONES = [
-  {
-    titulo: 'Hero (pantalla de inicio)',
-    campos: [
-      { key: 'hero_subtitulo', label: 'Texto pequeño arriba', tipo: 'text' },
-      { key: 'hero_titulo', label: 'Título principal', tipo: 'text' },
-      { key: 'hero_descripcion', label: 'Descripción', tipo: 'textarea' },
-    ],
-  },
-  {
-    titulo: 'Sección "Nuestro enfoque"',
-    campos: [
-      { key: 'intro_titulo', label: 'Título', tipo: 'text' },
-      { key: 'intro_descripcion', label: 'Descripción', tipo: 'textarea' },
-    ],
-  },
-  {
-    titulo: 'Sobre nosotros',
-    campos: [
-      { key: 'nosotros_bajada', label: 'Texto de presentación', tipo: 'textarea' },
-    ],
-  },
-  {
-    titulo: 'Contacto y redes',
-    campos: [
-      { key: 'footer_email', label: 'Email', tipo: 'email' },
-      { key: 'footer_instagram', label: 'Instagram (ej: @intima.studio)', tipo: 'text' },
-      { key: 'footer_telefono', label: 'Teléfono (opcional)', tipo: 'text' },
-    ],
-  },
-  {
-    titulo: 'Botón de WhatsApp',
-    campos: [
-      { key: 'whatsapp_numero', label: 'Número (con código de país, sin +)', tipo: 'text' },
-      { key: 'whatsapp_mensaje', label: 'Mensaje predeterminado', tipo: 'textarea' },
-    ],
-  },
-]
+function ImageUploader({
+  label,
+  value,
+  onChange,
+  hint,
+}: {
+  label: string
+  value: string
+  onChange: (url: string) => void
+  hint?: string
+}) {
+  const [uploading, setUploading] = useState(false)
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const ext = file.name.split('.').pop()
+    const fileName = `configuracion/${Date.now()}.${ext}`
+    const sb = createSupabaseBrowser()
+    const { error } = await sb.storage.from('proyectos').upload(fileName, file, { upsert: true })
+    if (error) { toast.error('Error subiendo imagen'); setUploading(false); return }
+    const { data: { publicUrl } } = sb.storage.from('proyectos').getPublicUrl(fileName)
+    onChange(publicUrl)
+    setUploading(false)
+    toast.success('Imagen subida')
+    // reset input
+    e.target.value = ''
+  }
+
+  return (
+    <div>
+      <p className="font-body text-xs text-intima-dark/60 mb-2">{label}</p>
+      {hint && <p className="font-body text-xs text-intima-dark/30 mb-3">{hint}</p>}
+
+      {value ? (
+        <div className="relative w-48 mb-3">
+          <div className="aspect-[4/3] overflow-hidden rounded-lg border border-gray-100">
+            <img src={value} alt={label} className="w-full h-full object-cover" />
+          </div>
+          <button
+            type="button"
+            onClick={() => onChange('')}
+            className="absolute -top-2 -right-2 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center text-red-400 hover:text-red-600 shadow-sm"
+          >
+            <X size={12} />
+          </button>
+        </div>
+      ) : null}
+
+      <label className="inline-flex items-center gap-2 border border-dashed border-intima-sand rounded-lg px-5 py-3 cursor-pointer hover:border-intima-brown transition-colors">
+        <Upload size={14} className="text-intima-brown flex-shrink-0" />
+        <span className="font-body text-xs text-intima-dark/60">
+          {uploading ? 'Subiendo...' : value ? 'Cambiar imagen' : 'Subir imagen'}
+        </span>
+        <input type="file" accept="image/*" onChange={handleFile} disabled={uploading} className="hidden" />
+      </label>
+    </div>
+  )
+}
 
 export default function ConfiguracionPage() {
   const [config, setConfig] = useState<Config>(DEFAULTS)
@@ -78,38 +98,38 @@ export default function ConfiguracionPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    const supabase = createSupabaseBrowser()
-    supabase.from('config_site').select('*').then(({ data }) => {
-      if (data && data.length > 0) {
+    fetch('/api/configuracion')
+      .then((r) => r.json())
+      .then((data: Record<string, string>) => {
         const merged = { ...DEFAULTS }
-        data.forEach(({ clave, valor }: { clave: string; valor: string }) => {
-          if (clave in merged) (merged as Record<string, string>)[clave] = valor
-        })
+        for (const key in merged) {
+          if (key in data) (merged as Record<string, string>)[key] = data[key] ?? ''
+        }
         setConfig(merged)
-      }
-      setLoading(false)
-    })
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
   }, [])
+
+  const setField = (key: keyof Config, value: string) =>
+    setConfig((prev) => ({ ...prev, [key]: value }))
 
   const handleSave = async () => {
     setSaving(true)
-    const supabase = createSupabaseBrowser()
-
-    const upserts = Object.entries(config).map(([clave, valor]) => ({ clave, valor }))
-    const { error } = await supabase
-      .from('config_site')
-      .upsert(upserts, { onConflict: 'clave' })
-
-    if (error) {
-      toast.error('Error al guardar')
+    const res = await fetch('/api/configuracion', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    })
+    if (res.ok) {
+      toast.success('Configuración guardada ✓')
     } else {
-      toast.success('Configuración guardada')
+      toast.error('Error al guardar')
     }
     setSaving(false)
   }
 
   const inputClass = 'w-full bg-white border border-gray-200 rounded-lg font-body text-intima-black px-4 py-2.5 text-sm outline-none focus:border-intima-brown transition-colors'
-  const labelClass = 'font-body text-xs text-intima-dark/60 block mb-1.5'
 
   if (loading) {
     return (
@@ -123,9 +143,9 @@ export default function ConfiguracionPage() {
     <div>
       <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="font-display text-3xl text-intima-black">Configuración</h1>
+          <h1 className="font-display text-3xl text-intima-black">Configuración del sitio</h1>
           <p className="font-body text-sm text-intima-dark/50 mt-1">
-            Editá los textos del sitio sin tocar código
+            Imágenes, WhatsApp y ajustes generales
           </p>
         </div>
         <button
@@ -139,38 +159,115 @@ export default function ConfiguracionPage() {
       </div>
 
       <div className="space-y-6">
-        {SECCIONES.map(({ titulo, campos }) => (
-          <div key={titulo} className="bg-white rounded-xl border border-gray-100 p-6">
-            <h2 className="font-body font-medium text-intima-dark text-sm mb-5 pb-4 border-b border-gray-100">
-              {titulo}
-            </h2>
-            <div className="space-y-4">
-              {campos.map(({ key, label, tipo }) => (
-                <div key={key}>
-                  <label className={labelClass}>{label}</label>
-                  {tipo === 'textarea' ? (
-                    <textarea
-                      value={(config as Record<string, string>)[key]}
-                      onChange={(e) => setConfig({ ...config, [key]: e.target.value })}
-                      rows={3}
-                      className={`${inputClass} resize-none`}
-                    />
-                  ) : (
-                    <input
-                      type={tipo}
-                      value={(config as Record<string, string>)[key]}
-                      onChange={(e) => setConfig({ ...config, [key]: e.target.value })}
-                      className={inputClass}
-                    />
-                  )}
-                </div>
-              ))}
+
+        {/* ── WhatsApp ── */}
+        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
+          <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">
+            Botón de WhatsApp
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="font-body text-xs text-intima-dark/60 block mb-1.5">
+                Número (con código de país, sin +)
+              </label>
+              <input
+                type="text"
+                value={config.whatsapp_numero}
+                onChange={(e) => setField('whatsapp_numero', e.target.value)}
+                className={inputClass}
+                placeholder="595981132221"
+              />
+            </div>
+            <div>
+              <label className="font-body text-xs text-intima-dark/60 block mb-1.5">
+                Mensaje predeterminado
+              </label>
+              <input
+                type="text"
+                value={config.whatsapp_mensaje}
+                onChange={(e) => setField('whatsapp_mensaje', e.target.value)}
+                className={inputClass}
+              />
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* ── Inicio — Hero ── */}
+        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
+          <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">
+            Página de inicio — Imágenes
+          </h2>
+
+          <ImageUploader
+            label="Hero (fondo de pantalla completa al entrar)"
+            hint="Imagen principal, ocupa toda la pantalla. Recomendado: 1920×1080px o similar horizontal."
+            value={config.hero_imagen_url}
+            onChange={(url) => setField('hero_imagen_url', url)}
+          />
+
+          <ImageUploader
+            label="Sección «Nuestro enfoque» (columna derecha)"
+            hint="Foto del estudio o de un proyecto. Formato vertical recomendado."
+            value={config.intro_imagen_url}
+            onChange={(url) => setField('intro_imagen_url', url)}
+          />
+        </div>
+
+        {/* ── Inicio — El Taller ── */}
+        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
+          <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">
+            Página de inicio — Mosaico El Taller (4 fotos)
+          </h2>
+          <p className="font-body text-xs text-intima-dark/40">
+            Cuatro imágenes cuadradas que se muestran como un collage. Pueden ser fotos de muebles, detalles o del taller.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {(['taller_home_imagen_1', 'taller_home_imagen_2', 'taller_home_imagen_3', 'taller_home_imagen_4'] as const).map((key, i) => (
+              <ImageUploader
+                key={key}
+                label={`Foto ${i + 1}`}
+                value={config[key]}
+                onChange={(url) => setField(key, url)}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* ── Nosotros ── */}
+        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
+          <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">
+            Página «Nosotros» — Foto del equipo
+          </h2>
+          <ImageUploader
+            label="Foto principal del equipo o del estudio"
+            hint="Se muestra como imagen grande en la sección principal de Nosotros."
+            value={config.nosotros_imagen_url}
+            onChange={(url) => setField('nosotros_imagen_url', url)}
+          />
+        </div>
+
+        {/* ── Open Graph ── */}
+        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
+          <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">
+            Imagen para compartir en redes (Open Graph)
+          </h2>
+          <p className="font-body text-xs text-intima-dark/40">
+            Esta imagen aparece cuando alguien comparte un link del sitio en WhatsApp, Instagram o redes sociales. Recomendado: 1200×630px.
+          </p>
+          <ImageUploader
+            label="Imagen OG"
+            value={config.og_imagen_url}
+            onChange={(url) => setField('og_imagen_url', url)}
+          />
+          {config.og_imagen_url && (
+            <p className="font-body text-xs text-intima-brown/60">
+              ⚠ Después de cambiar esta imagen, copiá la URL y ponela en el layout.tsx de la aplicación en el campo og_image para que funcione.
+            </p>
+          )}
+        </div>
+
       </div>
 
-      {/* Botón inferior también */}
       <div className="mt-8 flex justify-end">
         <button
           onClick={handleSave}

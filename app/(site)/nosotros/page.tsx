@@ -1,5 +1,9 @@
 import { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
+import { getSiteConfig } from '@/lib/config'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Nosotros',
@@ -29,7 +33,8 @@ const PROCESO = [
   },
 ]
 
-export default function NosotrosPage() {
+export default async function NosotrosPage() {
+  const config = await getSiteConfig()
   return (
     <>
       {/* Header */}
@@ -59,11 +64,20 @@ export default function NosotrosPage() {
         <div className="container-site pb-24">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
 
-            {/* Imagen grande — reemplazá con imagen real */}
+            {/* Imagen grande */}
             <div className="lg:col-span-3 relative aspect-[4/3] sm:aspect-[3/4] overflow-hidden bg-intima-sand/40 flex items-center justify-center">
-              <p className="font-body text-xs tracking-widest uppercase text-intima-brown/40">
-                Foto del equipo
-              </p>
+              {config.nosotros_imagen_url ? (
+                <Image
+                  src={config.nosotros_imagen_url}
+                  alt="El equipo de Íntima Studio"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <p className="font-body text-xs tracking-widest uppercase text-intima-brown/30">
+                  Foto del equipo
+                </p>
+              )}
             </div>
 
             {/* Texto */}

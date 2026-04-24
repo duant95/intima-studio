@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   description: 'Paquetes de diseño de interiores online. Proyectos 3D, planos y lista de compras con precios fijos.',
 }
 
+export type ProcesoStep = {
+  num: string
+  titulo: string
+  desc: string
+}
+
 export type Paquete = {
   id: string
   nombre: string
@@ -18,6 +24,7 @@ export type Paquete = {
   precio: number | null
   imagen_url: string | null
   incluye: string[]
+  proceso: ProcesoStep[]
   categoria: string
   destacado: boolean
   orden: number

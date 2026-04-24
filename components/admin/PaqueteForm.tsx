@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { createSupabaseBrowser } from '@/lib/supabase'
 import { Plus, Trash2, Upload, Star } from 'lucide-react'
-import type { Paquete } from '@/app/(site)/servicios/page'
+import type { Paquete, ProcesoStep } from '@/app/(site)/servicios/page'
 
 const CATEGORIAS = ['Dormitorio', 'Cocina', 'Baño', 'Living', 'Exterior', 'Oficina', 'Completo', 'Otro']
 
@@ -26,7 +26,14 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
   const router = useRouter()
   const [imagenUrl, setImagenUrl] = useState(paquete?.imagen_url ?? '')
   const [uploading, setUploading] = useState(false)
-  const [incluye, setIncluye] = useState<string[]>(paquete?.incluye ?? [''])
+  const [incluye, setIncluye] = useState<string[]>(
+    paquete?.incluye?.length ? paquete.incluye : ['']
+  )
+  const [proceso, setProceso] = useState<ProcesoStep[]>(
+    paquete?.proceso?.length
+      ? paquete.proceso
+      : [{ num: '01', titulo: '', desc: '' }]
+  )
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     defaultValues: paquete
@@ -49,12 +56,27 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
     toast.success('Imagen subida')
   }
 
+  // ── Incluye ──
   const addItem = () => setIncluye([...incluye, ''])
   const removeItem = (i: number) => setIncluye(incluye.filter((_, idx) => idx !== i))
   const updateItem = (i: number, val: string) => setIncluye(incluye.map((item, idx) => idx === i ? val : item))
 
+  // ── Proceso ──
+  const addStep = () => {
+    const num = String(proceso.length + 1).padStart(2, '0')
+    setProceso([...proceso, { num, titulo: '', desc: '' }])
+  }
+  const removeStep = (i: number) => setProceso(proceso.filter((_, idx) => idx !== i))
+  const updateStep = (i: number, field: keyof ProcesoStep, val: string) =>
+    setProceso(proceso.map((s, idx) => idx === i ? { ...s, [field]: val } : s))
+
   const onSubmit = async (data: FormData) => {
-    const body = { ...data, imagen_url: imagenUrl || null, incluye: incluye.filter(Boolean) }
+    const body = {
+      ...data,
+      imagen_url: imagenUrl || null,
+      incluye: incluye.filter(Boolean),
+      proceso: proceso.filter((s) => s.titulo || s.desc),
+    }
     const url = isEditing ? `/api/servicios/${paquete!.id}` : '/api/servicios'
     const method = isEditing ? 'PUT' : 'POST'
     const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
@@ -70,6 +92,7 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
+      {/* ── Info básica ── */}
       <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
         <h2 className="font-body font-medium text-intima-dark text-sm">Información del paquete</h2>
 
@@ -81,7 +104,7 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
 
         <div>
           <label className={labelClass}>Descripción</label>
-          <textarea {...register('descripcion')} rows={3} className={`${inputClass} resize-none`} placeholder="Breve descripción del paquete..." />
+          <textarea {...register('descripcion')} rows={4} className={`${inputClass} resize-none`} placeholder="Describí el paquete en detalle. Este texto se muestra en la página de detalle del servicio." />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -113,7 +136,25 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
         </div>
       </div>
 
-      {/* Qué incluye */}
+      {/* ── Imagen ── */}
+      <div className="bg-white rounded-xl border border-gray-100 p-6">
+        <h2 className="font-body font-medium text-intima-dark text-sm mb-4">Imagen del paquete</h2>
+        {imagenUrl && (
+          <div className="relative aspect-[4/3] w-48 mb-4 overflow-hidden rounded-lg">
+            <img src={imagenUrl} alt="" className="w-full h-full object-cover" />
+            <button type="button" onClick={() => setImagenUrl('')} className="absolute top-2 right-2 bg-white/80 rounded p-1 text-red-400 hover:text-red-600">✕</button>
+          </div>
+        )}
+        <label className="flex items-center gap-3 border-2 border-dashed border-intima-sand rounded-xl p-6 cursor-pointer hover:border-intima-brown transition-colors w-full md:w-72">
+          <Upload size={18} className="text-intima-sand flex-shrink-0" />
+          <span className="font-body text-sm text-intima-dark/60">
+            {uploading ? 'Subiendo...' : imagenUrl ? 'Cambiar imagen' : 'Subir imagen'}
+          </span>
+          <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} className="hidden" />
+        </label>
+      </div>
+
+      {/* ── Qué incluye ── */}
       <div className="bg-white rounded-xl border border-gray-100 p-6">
         <h2 className="font-body font-medium text-intima-dark text-sm mb-4">¿Qué incluye?</h2>
         <div className="space-y-2">
@@ -138,24 +179,68 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
         </button>
       </div>
 
-      {/* Imagen */}
+      {/* ── Proceso / Etapas ── */}
       <div className="bg-white rounded-xl border border-gray-100 p-6">
-        <h2 className="font-body font-medium text-intima-dark text-sm mb-4">Imagen del paquete</h2>
-        {imagenUrl && (
-          <div className="relative aspect-[4/3] w-48 mb-4 overflow-hidden rounded-lg">
-            <img src={imagenUrl} alt="" className="w-full h-full object-cover" />
-            <button type="button" onClick={() => setImagenUrl('')} className="absolute top-2 right-2 bg-white/80 rounded p-1 text-red-400 hover:text-red-600">✕</button>
-          </div>
-        )}
-        <label className="flex items-center gap-3 border-2 border-dashed border-intima-sand rounded-xl p-6 cursor-pointer hover:border-intima-brown transition-colors w-full md:w-72">
-          <Upload size={18} className="text-intima-sand flex-shrink-0" />
-          <span className="font-body text-sm text-intima-dark/60">
-            {uploading ? 'Subiendo...' : imagenUrl ? 'Cambiar imagen' : 'Subir imagen'}
-          </span>
-          <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} className="hidden" />
-        </label>
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="font-body font-medium text-intima-dark text-sm">Proceso del servicio</h2>
+          <span className="font-body text-xs text-intima-dark/40">Opcional</span>
+        </div>
+        <p className="font-body text-xs text-intima-dark/40 mb-5">
+          Describí las etapas del servicio. Se muestran en la página de detalle como una timeline.
+        </p>
+
+        <div className="space-y-4">
+          {proceso.map((step, i) => (
+            <div key={i} className="border border-gray-100 rounded-lg p-4 space-y-3 relative">
+              <div className="flex items-center justify-between">
+                <span className="font-display text-2xl text-intima-brown/30 leading-none">{step.num}</span>
+                {proceso.length > 1 && (
+                  <button type="button" onClick={() => removeStep(i)} className="text-red-400 hover:text-red-600 p-1">
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className={labelClass}>Número</label>
+                  <input
+                    value={step.num}
+                    onChange={(e) => updateStep(i, 'num', e.target.value)}
+                    className={inputClass}
+                    placeholder="01"
+                    maxLength={3}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className={labelClass}>Título de la etapa</label>
+                  <input
+                    value={step.titulo}
+                    onChange={(e) => updateStep(i, 'titulo', e.target.value)}
+                    className={inputClass}
+                    placeholder="Ej: Consulta inicial"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className={labelClass}>Descripción</label>
+                <textarea
+                  value={step.desc}
+                  onChange={(e) => updateStep(i, 'desc', e.target.value)}
+                  rows={2}
+                  className={`${inputClass} resize-none`}
+                  placeholder="Ej: Nos reunimos para entender tu visión y el espacio..."
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button type="button" onClick={addStep} className="mt-4 flex items-center gap-1.5 font-body text-xs text-intima-brown hover:text-intima-black transition-colors">
+          <Plus size={13} /> Agregar etapa
+        </button>
       </div>
 
+      {/* ── Acciones ── */}
       <div className="flex items-center gap-4">
         <button type="submit" disabled={isSubmitting || uploading} className="bg-intima-brown text-intima-beige font-body text-sm tracking-widest uppercase px-8 py-3 rounded hover:bg-intima-black transition-colors disabled:opacity-60">
           {isSubmitting ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear paquete'}
