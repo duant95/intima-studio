@@ -69,8 +69,7 @@ export default async function TallerPage() {
             </FadeIn>
             <FadeIn delay={0.25}>
               <h1 className="font-display text-5xl sm:text-6xl md:text-8xl text-intima-beige leading-none mb-6">
-                El<br />
-                <span className="italic text-intima-sand">Taller</span>
+                <span className="italic text-intima-sand">El Taller</span>
               </h1>
             </FadeIn>
             <FadeIn delay={0.4}>
