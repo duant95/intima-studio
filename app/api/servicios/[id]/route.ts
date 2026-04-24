@@ -25,6 +25,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   const { data, error } = await supabase.from('paquetes').update(body).eq('id', params.id).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   revalidatePath('/servicios')
+  revalidatePath('/admin/servicios')
   return NextResponse.json(data)
 }
 
@@ -35,5 +36,6 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const { error } = await supabase.from('paquetes').delete().eq('id', params.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   revalidatePath('/servicios')
+  revalidatePath('/admin/servicios')
   return NextResponse.json({ success: true })
 }

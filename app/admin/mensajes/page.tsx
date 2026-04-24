@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 
 import { createAdminClient, type Mensaje } from '@/lib/supabase'
 import { formatDate } from '@/lib/utils'

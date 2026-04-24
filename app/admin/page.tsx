@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { createAdminClient } from '@/lib/supabase'
 import Link from 'next/link'
 import { Images, MessageSquare, PlusSquare, Eye } from 'lucide-react'

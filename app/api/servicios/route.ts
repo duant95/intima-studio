@@ -30,5 +30,6 @@ export async function POST(req: NextRequest) {
   const { data, error } = await supabase.from('paquetes').insert([body]).select().single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   revalidatePath('/servicios')
+  revalidatePath('/admin/servicios')
   return NextResponse.json(data, { status: 201 })
 }

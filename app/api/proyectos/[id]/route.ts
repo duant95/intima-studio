@@ -37,6 +37,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   revalidatePath('/')
   revalidatePath('/galeria')
   revalidatePath(`/galeria/${params.id}`)
+  revalidatePath('/admin/proyectos')
 
   return NextResponse.json(data)
 }
@@ -57,6 +58,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 
   revalidatePath('/')
   revalidatePath('/galeria')
+  revalidatePath('/admin/proyectos')
 
   return NextResponse.json({ success: true })
 }

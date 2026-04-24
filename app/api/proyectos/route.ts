@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
   // Invalidar el caché del homepage y galería para que se actualicen inmediatamente
   revalidatePath('/')
   revalidatePath('/galeria')
+  revalidatePath('/admin/proyectos')
 
   return NextResponse.json(data, { status: 201 })
 }

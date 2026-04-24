@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { createAdminClient, type Proyecto } from '@/lib/supabase'
 import Link from 'next/link'
 import Image from 'next/image'
