@@ -17,7 +17,7 @@ const links = [
 ]
 
 // Páginas que tienen hero oscuro — el navbar arranca en blanco
-const HERO_PAGES = ['/']
+const HERO_PAGES = ['/', '/taller']
 
 export default function Navbar() {
   const pathname = usePathname()
