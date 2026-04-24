@@ -29,11 +29,16 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
   const [incluye, setIncluye] = useState<string[]>(
     paquete?.incluye?.length ? paquete.incluye : ['']
   )
-  const [proceso, setProceso] = useState<ProcesoStep[]>(
-    paquete?.proceso?.length
-      ? paquete.proceso
-      : [{ num: '01', titulo: '', desc: '' }]
-  )
+  const [proceso, setProceso] = useState<ProcesoStep[]>(() => {
+    // Supabase puede devolver proceso como null, [], string o array — manejamos todo
+    const raw = paquete?.proceso
+    const parsed: ProcesoStep[] = Array.isArray(raw)
+      ? raw
+      : typeof raw === 'string'
+        ? (() => { try { return JSON.parse(raw) } catch { return [] } })()
+        : []
+    return parsed.length > 0 ? parsed : [{ num: '01', titulo: '', desc: '' }]
+  })
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     defaultValues: paquete
@@ -71,16 +76,22 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
     setProceso(proceso.map((s, idx) => idx === i ? { ...s, [field]: val } : s))
 
   const onSubmit = async (data: FormData) => {
+    // Guardar todos los pasos que tengan al menos número o título — no filtrar agresivo
+    const procesoFinal = proceso.filter((s) => s.num || s.titulo || s.desc)
     const body = {
       ...data,
       imagen_url: imagenUrl || null,
       incluye: incluye.filter(Boolean),
-      proceso: proceso.filter((s) => s.titulo || s.desc),
+      proceso: procesoFinal,
     }
     const url = isEditing ? `/api/servicios/${paquete!.id}` : '/api/servicios'
     const method = isEditing ? 'PUT' : 'POST'
     const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-    if (!res.ok) { toast.error('Error al guardar'); return }
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      toast.error(`Error al guardar: ${err.error ?? res.status}`)
+      return
+    }
     toast.success(isEditing ? 'Paquete actualizado' : 'Paquete creado')
     router.push('/admin/servicios')
     router.refresh()

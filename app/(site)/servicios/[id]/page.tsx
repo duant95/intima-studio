@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { getSiteConfig } from '@/lib/config'
 import FadeIn from '@/components/FadeIn'
-import type { Paquete } from '@/app/(site)/servicios/page'
+import type { Paquete, ProcesoStep } from '@/app/(site)/servicios/page'
 import { ArrowLeft } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
@@ -55,7 +55,13 @@ export default async function ServicioDetallePage({ params }: { params: { id: st
   )
   const waUrl = `https://wa.me/${config.whatsapp_numero}?text=${waMsg}`
 
-  const proceso = paquete.proceso ?? []
+  // Supabase puede devolver proceso como null, array o string JSON — parsear defensivamente
+  const proceso: ProcesoStep[] = (() => {
+    const raw = paquete.proceso as unknown
+    if (Array.isArray(raw)) return raw as ProcesoStep[]
+    if (typeof raw === 'string') { try { return JSON.parse(raw) } catch { return [] } }
+    return []
+  })()
 
   return (
     <>
