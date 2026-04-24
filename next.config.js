@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Evita que el router cache del cliente sirva datos viejos en páginas dinámicas
+  experimental: {
+    staleTimes: {
+      dynamic: 0,
+    },
+  },
+
   images: {
     remotePatterns: [
       {
