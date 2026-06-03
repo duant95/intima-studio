@@ -27,6 +27,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   revalidatePath('/servicios')
   revalidatePath(`/servicios/${params.id}`)
   revalidatePath('/admin/servicios')
+  revalidatePath(`/admin/servicios/${params.id}`)
   return NextResponse.json(data)
 }
 

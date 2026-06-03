@@ -5,8 +5,12 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { createSupabaseBrowser, type Proyecto } from '@/lib/supabase'
-import { Upload, X, Star } from 'lucide-react'
+import { Upload, X, Star, Play } from 'lucide-react'
 import Image from 'next/image'
+
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url)
+}
 
 type FormData = {
   titulo: string
@@ -112,8 +116,8 @@ export default function ProyectoForm({ proyecto, isEditing = false }: Props) {
     }
 
     toast.success(isEditing ? 'Proyecto actualizado' : 'Proyecto creado')
-    router.push('/admin/proyectos')
     router.refresh()
+    router.push('/admin/proyectos')
   }
 
   const inputClass = 'w-full bg-white border border-gray-200 rounded-lg font-body text-intima-black px-4 py-2.5 text-sm outline-none focus:border-intima-brown transition-colors'
@@ -198,12 +202,12 @@ export default function ProyectoForm({ proyecto, isEditing = false }: Props) {
         <label className="flex flex-col items-center justify-center border-2 border-dashed border-intima-sand rounded-xl p-10 cursor-pointer hover:border-intima-brown transition-colors mb-5">
           <Upload size={24} className="text-intima-sand mb-2" />
           <p className="font-body text-sm text-intima-dark/60">
-            {uploading ? 'Subiendo imágenes...' : 'Clic para subir imágenes (JPG, PNG, WebP)'}
+            {uploading ? 'Subiendo archivos...' : 'Clic para subir imágenes o videos'}
           </p>
-          <p className="font-body text-xs text-intima-dark/30 mt-1">Podés subir múltiples a la vez</p>
+          <p className="font-body text-xs text-intima-dark/30 mt-1">JPG, PNG, WebP, MP4, WebM — múltiples a la vez</p>
           <input
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             multiple
             onChange={handleImageUpload}
             disabled={uploading}
@@ -221,7 +225,16 @@ export default function ProyectoForm({ proyecto, isEditing = false }: Props) {
               {imagenes.map((url) => (
                 <div key={url} className="relative group">
                   <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                    <Image src={url} alt="" fill className="object-cover" />
+                    {isVideoUrl(url) ? (
+                      <div className="relative w-full h-full bg-intima-black">
+                        <video src={url} muted loop autoPlay playsInline className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <Play size={20} className="text-white/60" />
+                        </div>
+                      </div>
+                    ) : (
+                      <Image src={url} alt="" fill className="object-cover" />
+                    )}
 
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors" />

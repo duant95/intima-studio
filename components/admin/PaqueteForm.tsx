@@ -93,8 +93,8 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
       return
     }
     toast.success(isEditing ? 'Paquete actualizado' : 'Paquete creado')
-    router.push('/admin/servicios')
     router.refresh()
+    router.push('/admin/servicios')
   }
 
   const inputClass = 'w-full bg-white border border-gray-200 rounded-lg font-body text-intima-black px-4 py-2.5 text-sm outline-none focus:border-intima-brown transition-colors'

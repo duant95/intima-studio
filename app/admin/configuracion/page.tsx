@@ -8,11 +8,15 @@ import { Save, RefreshCw, Upload, X, Plus, Trash2 } from 'lucide-react'
 
 type Config = typeof CONFIG_DEFAULTS
 
-// ── Componente upload de imagen ────────────────────────────
-function ImageUploader({
-  label, value, onChange, hint, aspect = '4/3',
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url)
+}
+
+// ── Componente upload de imagen / video ───────────────────
+function MediaUploader({
+  label, value, onChange, hint, aspect = '4/3', acceptVideo = false,
 }: {
-  label: string; value: string; onChange: (url: string) => void; hint?: string; aspect?: string
+  label: string; value: string; onChange: (url: string) => void; hint?: string; aspect?: string; acceptVideo?: boolean
 }) {
   const [uploading, setUploading] = useState(false)
 
@@ -24,13 +28,15 @@ function ImageUploader({
     const fileName = `configuracion/${Date.now()}.${ext}`
     const sb = createSupabaseBrowser()
     const { error } = await sb.storage.from('proyectos').upload(fileName, file, { upsert: true })
-    if (error) { toast.error('Error subiendo imagen'); setUploading(false); return }
+    if (error) { toast.error('Error subiendo archivo'); setUploading(false); return }
     const { data: { publicUrl } } = sb.storage.from('proyectos').getPublicUrl(fileName)
     onChange(publicUrl)
     setUploading(false)
-    toast.success('Imagen subida')
+    toast.success(file.type.startsWith('video') ? 'Video subido' : 'Imagen subida')
     e.target.value = ''
   }
+
+  const isVid = value ? isVideoUrl(value) : false
 
   return (
     <div>
@@ -39,7 +45,10 @@ function ImageUploader({
       {value && (
         <div className="relative w-40 mb-3">
           <div className={`overflow-hidden rounded border border-gray-100 ${aspect === '16/9' ? 'aspect-video' : 'aspect-[4/3]'}`}>
-            <img src={value} alt="" className="w-full h-full object-cover" />
+            {isVid
+              ? <video src={value} muted loop autoPlay playsInline className="w-full h-full object-cover" />
+              : <img src={value} alt="" className="w-full h-full object-cover" />
+            }
           </div>
           <button type="button" onClick={() => onChange('')}
             className="absolute -top-2 -right-2 w-5 h-5 bg-white border border-gray-200 rounded-full flex items-center justify-center text-red-400 hover:text-red-600 shadow-sm">
@@ -50,13 +59,16 @@ function ImageUploader({
       <label className="inline-flex items-center gap-2 border border-dashed border-intima-sand rounded px-4 py-2 cursor-pointer hover:border-intima-brown transition-colors text-xs">
         <Upload size={12} className="text-intima-brown flex-shrink-0" />
         <span className="font-body text-intima-dark/60">
-          {uploading ? 'Subiendo...' : value ? 'Cambiar' : 'Subir imagen'}
+          {uploading ? 'Subiendo...' : value ? 'Cambiar' : acceptVideo ? 'Subir imagen o video' : 'Subir imagen'}
         </span>
-        <input type="file" accept="image/*" onChange={handleFile} disabled={uploading} className="hidden" />
+        <input type="file" accept={acceptVideo ? 'image/*,video/*' : 'image/*'} onChange={handleFile} disabled={uploading} className="hidden" />
       </label>
     </div>
   )
 }
+
+// Alias para compatibilidad con el resto del código
+const ImageUploader = (props: Parameters<typeof MediaUploader>[0]) => <MediaUploader {...props} />
 
 // ── Editor de tipos de taller ─────────────────────────────
 function TallerTiposEditor({
@@ -266,13 +278,23 @@ export default function ConfiguracionPage() {
         <div className="space-y-6">
           <div className={card}>
             <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">Hero — imagen y textos</h2>
-            <ImageUploader
-              label="Imagen de fondo (pantalla completa al entrar)"
-              hint="Horizontal. Recomendado: 1920×1080px o mayor."
-              value={config.hero_imagen_url}
-              onChange={(url) => set('hero_imagen_url', url)}
-              aspect="16/9"
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <ImageUploader
+                label="Imagen de fondo"
+                hint="Horizontal. Recomendado: 1920×1080px o mayor. También sirve como miniatura del video."
+                value={config.hero_imagen_url}
+                onChange={(url) => set('hero_imagen_url', url)}
+                aspect="16/9"
+              />
+              <MediaUploader
+                label="Video de fondo (opcional, reemplaza la imagen)"
+                hint="MP4 o WebM. Máx. recomendado: 10 MB. Se reproduce en loop sin sonido."
+                value={config.hero_video_url}
+                onChange={(url) => set('hero_video_url', url)}
+                aspect="16/9"
+                acceptVideo
+              />
+            </div>
             <div>
               <label className={label}>Texto pequeño arriba</label>
               <input value={config.inicio_hero_subtitulo} onChange={(e) => set('inicio_hero_subtitulo', e.target.value)} className={input} />
@@ -332,6 +354,27 @@ export default function ConfiguracionPage() {
       {/* ── TAB: El Taller ── */}
       {tab === 'El Taller' && (
         <div className="space-y-6">
+          <div className={card}>
+            <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">Hero de El Taller — fondo</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <ImageUploader
+                label="Imagen de fondo"
+                hint="Horizontal. Recomendado: 1920×1080px o mayor."
+                value={config.taller_hero_imagen_url}
+                onChange={(url) => set('taller_hero_imagen_url', url)}
+                aspect="16/9"
+              />
+              <MediaUploader
+                label="Video de fondo (opcional, reemplaza la imagen)"
+                hint="MP4 o WebM. Máx. recomendado: 10 MB. Se reproduce en loop sin sonido."
+                value={config.taller_hero_video_url}
+                onChange={(url) => set('taller_hero_video_url', url)}
+                aspect="16/9"
+                acceptVideo
+              />
+            </div>
+          </div>
+
           <div className={card}>
             <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">
               Sección «Qué fabricamos» — tipos de muebles

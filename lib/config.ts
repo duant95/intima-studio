@@ -10,8 +10,9 @@ export type SiteConfig = {
   // WhatsApp
   whatsapp_numero: string
   whatsapp_mensaje: string
-  // Imágenes — Inicio
+  // Imágenes / Videos — Inicio
   hero_imagen_url: string
+  hero_video_url: string
   intro_imagen_url: string
   taller_home_imagen_1: string
   taller_home_imagen_2: string
@@ -39,6 +40,9 @@ export type SiteConfig = {
   contacto_email: string
   contacto_instagram: string
   contacto_ubicacion: string
+  // El Taller — hero
+  taller_hero_imagen_url: string
+  taller_hero_video_url: string
   // El Taller — tipos (JSON string)
   taller_tipos: string
 }
@@ -47,6 +51,7 @@ export const CONFIG_DEFAULTS: SiteConfig = {
   whatsapp_numero: '595981132221',
   whatsapp_mensaje: '¡Hola! Me gustaría consultar sobre un proyecto de diseño de interiores.',
   hero_imagen_url: '',
+  hero_video_url: '',
   intro_imagen_url: '',
   taller_home_imagen_1: '',
   taller_home_imagen_2: '',
@@ -70,6 +75,8 @@ export const CONFIG_DEFAULTS: SiteConfig = {
   contacto_email: 'hola@intimastudio.com',
   contacto_instagram: 'intima.studio',
   contacto_ubicacion: 'Asunción, Paraguay',
+  taller_hero_imagen_url: '',
+  taller_hero_video_url: '',
   taller_tipos: JSON.stringify([
     { imagen_url: '', nombre: 'Mesas & Escritorios', desc: 'Comedor, centro, auxiliares y escritorios de trabajo.' },
     { imagen_url: '', nombre: 'Módulos & Estanterías', desc: 'Bibliotecas, aparadores, módulos de TV y walk-in closets.' },

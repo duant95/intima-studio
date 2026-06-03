@@ -48,7 +48,15 @@ export default async function HomePage() {
       {/* ─── HERO ─────────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-end pb-16 md:pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-intima-black">
-          {config.hero_imagen_url ? (
+          {config.hero_video_url ? (
+            <video
+              autoPlay muted loop playsInline
+              poster={config.hero_imagen_url || undefined}
+              className="absolute inset-0 w-full h-full object-cover opacity-60"
+            >
+              <source src={config.hero_video_url} />
+            </video>
+          ) : config.hero_imagen_url ? (
             <Image
               src={config.hero_imagen_url}
               alt="Íntima Studio"

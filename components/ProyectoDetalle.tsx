@@ -4,7 +4,11 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronLeft, ChevronRight, Calendar, Tag, ExternalLink } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Calendar, Tag, ExternalLink, Play } from 'lucide-react'
+
+function isVideoUrl(url: string) {
+  return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url)
+}
 import { type Proyecto } from '@/lib/supabase'
 import ProjectCard from '@/components/ProjectCard'
 import FadeIn from '@/components/FadeIn'
@@ -67,13 +71,22 @@ export default function ProyectoDetalle({ proyecto, relacionados }: Props) {
       {/* ─── HERO IMAGE ─────────────────────────────────── */}
       <section className="relative h-[55vh] md:h-[75vh] overflow-hidden bg-intima-sand/30">
         {proyecto.imagen_portada ? (
-          <Image
-            src={proyecto.imagen_portada}
-            alt={proyecto.titulo}
-            fill
-            priority
-            className="object-cover"
-          />
+          isVideoUrl(proyecto.imagen_portada) ? (
+            <video
+              autoPlay muted loop playsInline
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src={proyecto.imagen_portada} />
+            </video>
+          ) : (
+            <Image
+              src={proyecto.imagen_portada}
+              alt={proyecto.titulo}
+              fill
+              priority
+              className="object-cover"
+            />
+          )
         ) : (
           <div className="w-full h-full bg-intima-sand/30 flex items-center justify-center">
             <p className="font-body text-xs tracking-widest uppercase text-intima-brown/40">Sin imagen</p>
@@ -171,17 +184,30 @@ export default function ProyectoDetalle({ proyecto, relacionados }: Props) {
                   <button
                     onClick={() => openLightbox(i)}
                     className="group relative w-full overflow-hidden bg-intima-sand/20 block"
-                    aria-label={`Ver imagen ${i + 1}`}
+                    aria-label={`Ver ${isVideoUrl(url) ? 'video' : 'imagen'} ${i + 1}`}
                   >
                     <div className={`relative w-full ${
                       i === 0 && imagenes.length > 3 ? 'aspect-[16/9]' : 'aspect-[4/3]'
                     }`}>
-                      <Image
-                        src={url}
-                        alt={`${proyecto.titulo} - imagen ${i + 1}`}
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
+                      {isVideoUrl(url) ? (
+                        <>
+                          <video
+                            src={url}
+                            muted loop autoPlay playsInline
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <Play size={28} className="text-white/50" />
+                          </div>
+                        </>
+                      ) : (
+                        <Image
+                          src={url}
+                          alt={`${proyecto.titulo} - imagen ${i + 1}`}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      )}
                     </div>
                     <div className="absolute inset-0 bg-intima-black/0 group-hover:bg-intima-black/20 transition-all duration-300 flex items-center justify-center">
                       <span className="font-body text-xs tracking-widest uppercase text-intima-beige opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -254,7 +280,7 @@ export default function ProyectoDetalle({ proyecto, relacionados }: Props) {
               {lightboxIdx + 1} / {imagenes.length}
             </div>
 
-            {/* Imagen */}
+            {/* Imagen / Video */}
             <motion.div
               key={lightboxIdx}
               initial={{ opacity: 0, scale: 0.96 }}
@@ -265,13 +291,21 @@ export default function ProyectoDetalle({ proyecto, relacionados }: Props) {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="relative w-full h-full">
-                <Image
-                  src={imagenes[lightboxIdx]}
-                  alt={`${proyecto.titulo} - imagen ${lightboxIdx + 1}`}
-                  fill
-                  className="object-contain"
-                  quality={90}
-                />
+                {isVideoUrl(imagenes[lightboxIdx]) ? (
+                  <video
+                    src={imagenes[lightboxIdx]}
+                    controls autoPlay loop playsInline
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <Image
+                    src={imagenes[lightboxIdx]}
+                    alt={`${proyecto.titulo} - imagen ${lightboxIdx + 1}`}
+                    fill
+                    className="object-contain"
+                    quality={90}
+                  />
+                )}
               </div>
             </motion.div>
 
@@ -302,12 +336,15 @@ export default function ProyectoDetalle({ proyecto, relacionados }: Props) {
                   <button
                     key={url}
                     onClick={(e) => { e.stopPropagation(); setLightboxIdx(i) }}
-                    className={`relative w-12 h-8 overflow-hidden transition-all duration-200 ${
+                    className={`relative w-12 h-8 overflow-hidden bg-intima-dark transition-all duration-200 ${
                       i === lightboxIdx ? 'opacity-100 ring-1 ring-intima-sand' : 'opacity-40 hover:opacity-70'
                     }`}
-                    aria-label={`Imagen ${i + 1}`}
+                    aria-label={`${isVideoUrl(url) ? 'Video' : 'Imagen'} ${i + 1}`}
                   >
-                    <Image src={url} alt="" fill className="object-cover" />
+                    {isVideoUrl(url)
+                      ? <Play size={12} className="text-intima-sand absolute inset-0 m-auto" />
+                      : <Image src={url} alt="" fill className="object-cover" />
+                    }
                   </button>
                 ))}
               </div>

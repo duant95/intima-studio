@@ -42,14 +42,37 @@ export default async function TallerPage() {
     <>
       {/* ─── HERO ───────────────────────────────────────── */}
       <section className="relative min-h-[70vh] md:min-h-[85vh] flex items-end pb-16 md:pb-24 overflow-hidden">
-        <div className="absolute inset-0 bg-intima-black" />
-        <div className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 60px, #e9e1dc 60px, #e9e1dc 61px), repeating-linear-gradient(90deg, transparent, transparent 60px, #e9e1dc 60px, #e9e1dc 61px)',
-          }}
-        />
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-intima-brown/10" />
-
+        <div className="absolute inset-0 bg-intima-black">
+          {config.taller_hero_video_url ? (
+            <video
+              autoPlay muted loop playsInline
+              poster={config.taller_hero_imagen_url || undefined}
+              className="absolute inset-0 w-full h-full object-cover opacity-50"
+            >
+              <source src={config.taller_hero_video_url} />
+            </video>
+          ) : config.taller_hero_imagen_url ? (
+            <Image
+              src={config.taller_hero_imagen_url}
+              alt="El Taller"
+              fill
+              priority
+              className="object-cover opacity-50"
+            />
+          ) : (
+            <>
+              <div className="absolute inset-0 opacity-5"
+                style={{
+                  backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 60px, #e9e1dc 60px, #e9e1dc 61px), repeating-linear-gradient(90deg, transparent, transparent 60px, #e9e1dc 60px, #e9e1dc 61px)',
+                }}
+              />
+              <div className="absolute top-0 right-0 w-1/2 h-full bg-intima-brown/10" />
+            </>
+          )}
+          {(config.taller_hero_video_url || config.taller_hero_imagen_url) && (
+            <div className="absolute inset-0 bg-gradient-to-t from-intima-black/90 via-intima-black/40 to-intima-black/10" />
+          )}
+        </div>
         {/* CR Mueble logo — posicionado debajo del navbar, separado */}
         <div className="absolute top-24 md:top-28 left-0 right-0 z-10 pointer-events-none">
           <div className="container-site">
