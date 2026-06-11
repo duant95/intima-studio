@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
-import { getSiteConfig } from '@/lib/config'
+import { getSiteConfig, parseImageList } from '@/lib/config'
 import FadeIn from '@/components/FadeIn'
+import MediaSlider from '@/components/MediaSlider'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,20 +50,15 @@ export default async function NosotrosPage() {
         <div className="container-site pb-24">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
             <FadeIn direction="left" className="lg:col-span-3">
-              <div className="relative aspect-[4/3] sm:aspect-[3/4] overflow-hidden bg-intima-sand/40 flex items-center justify-center">
-                {config.nosotros_imagen_url ? (
-                  <Image
-                    src={config.nosotros_imagen_url}
-                    alt="El equipo de Íntima Studio"
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <p className="font-body text-xs tracking-widest uppercase text-intima-brown/30">
-                    Foto del equipo
-                  </p>
-                )}
-              </div>
+              <MediaSlider
+                images={(() => {
+                  const list = parseImageList(config.nosotros_imagenes)
+                  return list.length > 0 ? list : config.nosotros_imagen_url ? [config.nosotros_imagen_url] : []
+                })()}
+                alt="El equipo de Íntima Studio"
+                aspectClass="aspect-[4/3] sm:aspect-[3/4]"
+                placeholder="Foto del equipo"
+              />
             </FadeIn>
 
             <FadeIn direction="right" delay={0.1} className="lg:col-span-2">

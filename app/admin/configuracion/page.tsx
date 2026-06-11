@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createSupabaseBrowser } from '@/lib/supabase'
-import { CONFIG_DEFAULTS, parseTallerTipos, type TallerTipo } from '@/lib/config'
+import { CONFIG_DEFAULTS, parseTallerTipos, parseImageList, type TallerTipo } from '@/lib/config'
 import toast from 'react-hot-toast'
 import { Save, RefreshCw, Upload, X, Plus, Trash2 } from 'lucide-react'
 
@@ -69,6 +69,64 @@ function MediaUploader({
 
 // Alias para compatibilidad con el resto del código
 const ImageUploader = (props: Parameters<typeof MediaUploader>[0]) => <MediaUploader {...props} />
+
+// ── Lista de imágenes (slideshow) ────────────────────────
+function ImageListUploader({
+  label, value, onChange, hint,
+}: {
+  label: string; value: string; onChange: (v: string) => void; hint?: string
+}) {
+  const [items, setItems] = useState<string[]>(() => parseImageList(value))
+  const [uploading, setUploading] = useState(false)
+
+  const sync = (next: string[]) => { setItems(next); onChange(JSON.stringify(next)) }
+  const remove = (i: number) => sync(items.filter((_, idx) => idx !== i))
+
+  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files?.length) return
+    setUploading(true)
+    const newUrls: string[] = []
+    for (const file of Array.from(files)) {
+      const ext = file.name.split('.').pop()
+      const fileName = `configuracion/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const sb = createSupabaseBrowser()
+      const { error } = await sb.storage.from('proyectos').upload(fileName, file, { upsert: true })
+      if (error) { toast.error(`Error subiendo ${file.name}`); continue }
+      const { data: { publicUrl } } = sb.storage.from('proyectos').getPublicUrl(fileName)
+      newUrls.push(publicUrl)
+    }
+    sync([...items, ...newUrls])
+    setUploading(false)
+    toast.success(`${newUrls.length} imagen(es) subida(s)`)
+    e.target.value = ''
+  }
+
+  return (
+    <div>
+      {label && <p className="font-body text-xs text-intima-dark/60 mb-1.5">{label}</p>}
+      {hint && <p className="font-body text-xs text-intima-dark/30 mb-2">{hint}</p>}
+      {items.length > 0 && (
+        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-3">
+          {items.map((url, i) => (
+            <div key={i} className="relative aspect-[4/3] overflow-hidden rounded border border-gray-100 group">
+              <img src={url} alt="" className="w-full h-full object-cover" />
+              <button type="button" onClick={() => remove(i)}
+                className="absolute top-1 right-1 w-5 h-5 bg-white/80 rounded-full flex items-center justify-center text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                <X size={10} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <label className="inline-flex items-center gap-2 border border-dashed border-intima-sand rounded px-4 py-2 cursor-pointer hover:border-intima-brown transition-colors text-xs">
+        <Upload size={12} className="text-intima-brown flex-shrink-0" />
+        <span className="font-body text-intima-dark/60">{uploading ? 'Subiendo...' : 'Agregar imágenes'}</span>
+        <input type="file" accept="image/*" multiple onChange={upload} disabled={uploading} className="hidden" />
+      </label>
+    </div>
+  )
+}
 
 // ── Editor de tipos de taller ─────────────────────────────
 function TallerTiposEditor({
@@ -312,10 +370,29 @@ export default function ConfiguracionPage() {
 
           <div className={card}>
             <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">Sección «Nuestro enfoque»</h2>
-            <ImageUploader
-              label="Imagen (columna derecha, formato vertical recomendado)"
-              value={config.intro_imagen_url}
-              onChange={(url) => set('intro_imagen_url', url)}
+            <p className="font-body text-xs text-intima-dark/40 mb-3">
+              Si subís varias imágenes, se muestran como slideshow automático. El video tiene prioridad si lo configurás.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-5">
+              <ImageUploader
+                label="Imagen única (o imagen de respaldo)"
+                value={config.intro_imagen_url}
+                onChange={(url) => set('intro_imagen_url', url)}
+              />
+              <MediaUploader
+                label="Video (opcional, reemplaza las imágenes)"
+                hint="MP4 o WebM, máx. 10 MB."
+                value={config.intro_video_url}
+                onChange={(url) => set('intro_video_url', url)}
+                aspect="4/3"
+                acceptVideo
+              />
+            </div>
+            <ImageListUploader
+              label="Slideshow — varias imágenes (opcional)"
+              hint="Si agregás más de una, se alternan automáticamente. Reemplaza la 'imagen única' de arriba."
+              value={config.intro_imagenes}
+              onChange={(v) => set('intro_imagenes', v)}
             />
             <div>
               <label className={label}>Título</label>
@@ -394,12 +471,23 @@ export default function ConfiguracionPage() {
       {tab === 'Nosotros' && (
         <div className="space-y-6">
           <div className={card}>
-            <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">Foto del equipo</h2>
+            <h2 className="font-body font-medium text-intima-dark text-sm pb-3 border-b border-gray-100">Fotos del equipo</h2>
+            <p className="font-body text-xs text-intima-dark/40 mb-3">
+              Si subís varias imágenes, se muestran como slideshow en la página Nosotros.
+            </p>
             <ImageUploader
-              label="Foto principal (imagen grande en la página Nosotros)"
+              label="Imagen única (o imagen de respaldo)"
               value={config.nosotros_imagen_url}
               onChange={(url) => set('nosotros_imagen_url', url)}
             />
+            <div className="mt-4">
+              <ImageListUploader
+                label="Slideshow — varias fotos (opcional)"
+                hint="Si agregás más de una, se alternan automáticamente. Tienen prioridad sobre la 'imagen única'."
+                value={config.nosotros_imagenes}
+                onChange={(v) => set('nosotros_imagenes', v)}
+              />
+            </div>
           </div>
 
           <div className={card}>

@@ -24,6 +24,7 @@ export type Paquete = {
   descripcion: string | null
   precio: number | null
   imagen_url: string | null
+  imagenes: string[]
   incluye: string[]
   proceso: ProcesoStep[]
   categoria: string
@@ -45,7 +46,6 @@ const formatPrecio = (precio: number) =>
 
 export default async function ServiciosPage() {
   const [paquetes, config] = await Promise.all([getPaquetes(), getSiteConfig()])
-  const destacados = paquetes.filter((p) => p.destacado)
   const categorias = ['Todos', ...Array.from(new Set(paquetes.map((p) => p.categoria)))]
 
   return (
@@ -67,24 +67,6 @@ export default async function ServiciosPage() {
           </FadeIn>
         </div>
       </section>
-
-      {/* Destacados */}
-      {destacados.length > 0 && (
-        <section className="pb-6 bg-intima-beige">
-          <div className="container-site">
-            <FadeIn>
-              <p className="font-body text-xs tracking-widest uppercase text-intima-brown mb-8">Destacados</p>
-            </FadeIn>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {destacados.map((p, i) => (
-                <FadeIn key={p.id} delay={i * 0.08}>
-                  <PaqueteCard paquete={p} formatPrecio={formatPrecio} destacado waNumero={config.whatsapp_numero} />
-                </FadeIn>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Todos los paquetes con filtro */}
       <ServiciosGrid paquetes={paquetes} categorias={categorias} />

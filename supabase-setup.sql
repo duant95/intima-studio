@@ -215,3 +215,15 @@ insert into configuracion (clave, valor) values
   -- El Taller — tipos de muebles (JSON)
   ('taller_tipos',           '[{"imagen_url":"","nombre":"Mesas & Escritorios","desc":"Comedor, centro, auxiliares y escritorios de trabajo."},{"imagen_url":"","nombre":"Módulos & Estanterías","desc":"Bibliotecas, aparadores, módulos de TV y walk-in closets."},{"imagen_url":"","nombre":"Sillas & Sillones","desc":"Asientos de diseño con tapizados exclusivos."},{"imagen_url":"","nombre":"Camas & Cabeceras","desc":"Plataformas y cabeceras tapizadas o en madera."},{"imagen_url":"","nombre":"Baños & Vanitorios","desc":"Muebles de baño a medida con materiales resistentes."},{"imagen_url":"","nombre":"Piezas de exterior","desc":"Mobiliario para terrazas y espacios al aire libre."}]')
 on conflict (clave) do nothing;
+
+-- ═══════════════════════════════════════════════════════════════
+-- MIGRACIONES — ejecutá estas líneas en Supabase > SQL Editor
+-- ═══════════════════════════════════════════════════════════════
+
+-- Galería de imágenes en paquetes (servicios)
+alter table paquetes
+  add column if not exists imagenes text[] default '{}';
+
+-- Ubicación en proyectos
+alter table proyectos
+  add column if not exists ubicacion text;

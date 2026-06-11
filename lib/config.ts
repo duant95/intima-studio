@@ -14,6 +14,8 @@ export type SiteConfig = {
   hero_imagen_url: string
   hero_video_url: string
   intro_imagen_url: string
+  intro_imagenes: string
+  intro_video_url: string
   taller_home_imagen_1: string
   taller_home_imagen_2: string
   taller_home_imagen_3: string
@@ -40,6 +42,8 @@ export type SiteConfig = {
   contacto_email: string
   contacto_instagram: string
   contacto_ubicacion: string
+  // Nosotros
+  nosotros_imagenes: string
   // El Taller — hero
   taller_hero_imagen_url: string
   taller_hero_video_url: string
@@ -53,6 +57,8 @@ export const CONFIG_DEFAULTS: SiteConfig = {
   hero_imagen_url: '',
   hero_video_url: '',
   intro_imagen_url: '',
+  intro_imagenes: '[]',
+  intro_video_url: '',
   taller_home_imagen_1: '',
   taller_home_imagen_2: '',
   taller_home_imagen_3: '',
@@ -75,6 +81,7 @@ export const CONFIG_DEFAULTS: SiteConfig = {
   contacto_email: 'hola@intimastudio.com',
   contacto_instagram: 'intima.studio',
   contacto_ubicacion: 'Asunción, Paraguay',
+  nosotros_imagenes: '[]',
   taller_hero_imagen_url: '',
   taller_hero_video_url: '',
   taller_tipos: JSON.stringify([
@@ -100,6 +107,15 @@ export async function getSiteConfig(): Promise<SiteConfig> {
     return config
   } catch {
     return CONFIG_DEFAULTS
+  }
+}
+
+export function parseImageList(json: string): string[] {
+  try {
+    const parsed = JSON.parse(json)
+    return Array.isArray(parsed) ? parsed.filter(Boolean) : []
+  } catch {
+    return []
   }
 }
 

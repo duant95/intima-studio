@@ -4,11 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, ChevronLeft, ChevronRight, Calendar, Tag, ExternalLink, Play } from 'lucide-react'
-
-function isVideoUrl(url: string) {
-  return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url)
-}
+import { X, ChevronLeft, ChevronRight, Calendar, Tag, ExternalLink, Play, MapPin } from 'lucide-react'
+import { isVideoUrl, getImageTag, getRealUrl, isSep, getSepLabel } from '@/lib/utils'
 import { type Proyecto } from '@/lib/supabase'
 import ProjectCard from '@/components/ProjectCard'
 import FadeIn from '@/components/FadeIn'
@@ -18,9 +15,48 @@ interface Props {
   relacionados: Proyecto[]
 }
 
+// Construye la lista de display: inserta divisores cuando cambia la etiqueta
+function buildDisplayList(urls: string[]) {
+  type Entry =
+    | { kind: 'divider'; label: string }
+    | { kind: 'image'; url: string; lightboxIdx: number }
+
+  const result: Entry[] = []
+  let lastSection: string | null = null
+  let imgIdx = 0
+
+  for (const rawUrl of urls) {
+    // Formato antiguo: __sep:Label__
+    if (isSep(rawUrl)) {
+      const label = getSepLabel(rawUrl)
+      if (label !== lastSection) { result.push({ kind: 'divider', label }); lastSection = label }
+      continue
+    }
+    // Formato nuevo: __antes__:url / __desp__:url
+    const tag = getImageTag(rawUrl)
+    const url = getRealUrl(rawUrl)
+    const section = tag === 'antes' ? 'Antes' : tag === 'despues' ? 'Después' : null
+
+    if (section !== null && section !== lastSection) {
+      result.push({ kind: 'divider', label: section })
+      lastSection = section
+    } else if (section === null && lastSection !== null && tag === null) {
+      lastSection = null
+    }
+
+    result.push({ kind: 'image', url, lightboxIdx: imgIdx++ })
+  }
+
+  return result
+}
+
 export default function ProyectoDetalle({ proyecto, relacionados }: Props) {
-  const imagenes = proyecto.imagenes?.length ? proyecto.imagenes : 
+  const rawImagenes = proyecto.imagenes?.length ? proyecto.imagenes :
     (proyecto.imagen_portada ? [proyecto.imagen_portada] : [])
+
+  const displayList = buildDisplayList(rawImagenes)
+  // Para el lightbox: solo las imágenes reales (URL limpia)
+  const imagenes = displayList.filter((e) => e.kind === 'image').map((e) => (e as { kind: 'image'; url: string; lightboxIdx: number }).url)
 
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
 
@@ -126,6 +162,15 @@ export default function ProyectoDetalle({ proyecto, relacionados }: Props) {
                     </div>
                   </div>
                 )}
+                {proyecto.ubicacion && (
+                  <div className="flex items-start gap-3">
+                    <MapPin size={14} className="text-intima-brown mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-body text-xs tracking-widest uppercase text-intima-dark/40 mb-0.5">Ubicación</p>
+                      <p className="font-body text-sm text-intima-dark">{proyecto.ubicacion}</p>
+                    </div>
+                  </div>
+                )}
                 {proyecto.fecha && (
                   <div className="flex items-start gap-3">
                     <Calendar size={14} className="text-intima-brown mt-0.5 flex-shrink-0" />
@@ -150,9 +195,11 @@ export default function ProyectoDetalle({ proyecto, relacionados }: Props) {
             {/* Descripción */}
             <FadeIn direction="right" className="lg:col-span-2">
               {proyecto.descripcion ? (
-                <p className="font-body text-intima-dark/80 text-base md:text-lg leading-relaxed">
-                  {proyecto.descripcion}
-                </p>
+                <div className="space-y-4">
+                  {proyecto.descripcion.split('\n').filter(Boolean).map((p, i) => (
+                    <p key={i} className="font-body text-intima-dark/80 text-base md:text-lg leading-relaxed">{p}</p>
+                  ))}
+                </div>
               ) : (
                 <p className="font-body text-intima-dark/40 italic text-sm">
                   Sin descripción disponible.
@@ -173,50 +220,50 @@ export default function ProyectoDetalle({ proyecto, relacionados }: Props) {
               </p>
             </FadeIn>
 
-            {/* Grid de imágenes */}
             <div className={`grid gap-3 md:gap-4 ${
               imagenes.length === 1 ? 'grid-cols-1' :
               imagenes.length === 2 ? 'grid-cols-1 md:grid-cols-2' :
               'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
             }`}>
-              {imagenes.map((url, i) => (
-                <FadeIn key={url} delay={i * 0.06}>
-                  <button
-                    onClick={() => openLightbox(i)}
-                    className="group relative w-full overflow-hidden bg-intima-sand/20 block"
-                    aria-label={`Ver ${isVideoUrl(url) ? 'video' : 'imagen'} ${i + 1}`}
-                  >
-                    <div className={`relative w-full ${
-                      i === 0 && imagenes.length > 3 ? 'aspect-[16/9]' : 'aspect-[4/3]'
-                    }`}>
-                      {isVideoUrl(url) ? (
-                        <>
-                          <video
-                            src={url}
-                            muted loop autoPlay playsInline
-                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                            <Play size={28} className="text-white/50" />
-                          </div>
-                        </>
-                      ) : (
-                        <Image
-                          src={url}
-                          alt={`${proyecto.titulo} - imagen ${i + 1}`}
-                          fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      )}
-                    </div>
-                    <div className="absolute inset-0 bg-intima-black/0 group-hover:bg-intima-black/20 transition-all duration-300 flex items-center justify-center">
-                      <span className="font-body text-xs tracking-widest uppercase text-intima-beige opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        Ver
-                      </span>
-                    </div>
-                  </button>
-                </FadeIn>
-              ))}
+              {displayList.map((entry, i) =>
+                entry.kind === 'divider' ? (
+                  <div key={`div-${i}`} className="col-span-full flex items-center gap-4 py-5">
+                    <div className="flex-1 h-px bg-intima-sand/60" />
+                    <p className="font-body text-xs tracking-widest uppercase text-intima-brown/70 select-none px-2">
+                      {entry.label}
+                    </p>
+                    <div className="flex-1 h-px bg-intima-sand/60" />
+                  </div>
+                ) : (
+                  <FadeIn key={entry.url + i} delay={entry.lightboxIdx * 0.06}>
+                    <button
+                      onClick={() => openLightbox(entry.lightboxIdx)}
+                      className="group relative w-full overflow-hidden bg-intima-sand/20 block"
+                      aria-label={`Ver ${isVideoUrl(entry.url) ? 'video' : 'imagen'} ${entry.lightboxIdx + 1}`}
+                    >
+                      <div className={`relative w-full ${
+                        entry.lightboxIdx === 0 && imagenes.length > 3 ? 'aspect-[16/9]' : 'aspect-[4/3]'
+                      }`}>
+                        {isVideoUrl(entry.url) ? (
+                          <>
+                            <video src={entry.url} muted loop autoPlay playsInline
+                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <Play size={28} className="text-white/50" />
+                            </div>
+                          </>
+                        ) : (
+                          <Image src={entry.url} alt={`${proyecto.titulo} - ${entry.lightboxIdx + 1}`} fill
+                            className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                        )}
+                      </div>
+                      <div className="absolute inset-0 bg-intima-black/0 group-hover:bg-intima-black/20 transition-all duration-300 flex items-center justify-center">
+                        <span className="font-body text-xs tracking-widest uppercase text-intima-beige opacity-0 group-hover:opacity-100 transition-opacity duration-300">Ver</span>
+                      </div>
+                    </button>
+                  </FadeIn>
+                )
+              )}
             </div>
           </div>
         </section>

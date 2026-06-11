@@ -30,9 +30,10 @@ export type Proyecto = {
   titulo: string
   descripcion: string
   categoria: string
-  imagenes: string[]   // URLs de Supabase Storage
+  imagenes: string[]
   imagen_portada: string
   fecha: string
+  ubicacion?: string
   destacado: boolean
   orden: number
   created_at: string

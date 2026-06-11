@@ -7,6 +7,7 @@ import { getSiteConfig } from '@/lib/config'
 import FadeIn from '@/components/FadeIn'
 import type { Paquete, ProcesoStep } from '@/app/(site)/servicios/page'
 import { ArrowLeft } from 'lucide-react'
+import { isVideoUrl } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -172,6 +173,38 @@ export default async function ServicioDetallePage({ params }: { params: { id: st
           </div>
         </div>
       </section>
+
+      {/* ─── GALERÍA ADICIONAL ─────────────────────────────── */}
+      {paquete.imagenes?.length > 0 && (
+        <section className="pb-16 bg-intima-beige">
+          <div className="container-site">
+            <FadeIn>
+              <p className="font-body text-xs tracking-widest uppercase text-intima-brown mb-8">
+                Galería
+              </p>
+            </FadeIn>
+            <div className={`grid gap-3 md:gap-4 ${
+              paquete.imagenes.length === 1 ? 'grid-cols-1 max-w-lg' :
+              paquete.imagenes.length === 2 ? 'grid-cols-1 md:grid-cols-2' :
+              'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+            }`}>
+              {paquete.imagenes.map((url, i) => (
+                <FadeIn key={url} delay={i * 0.06}>
+                  <div className="relative aspect-[4/3] overflow-hidden bg-intima-sand/20">
+                    {isVideoUrl(url) ? (
+                      <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" >
+                        <source src={url} />
+                      </video>
+                    ) : (
+                      <Image src={url} alt={`${paquete.nombre} - ${i + 1}`} fill className="object-cover" />
+                    )}
+                  </div>
+                </FadeIn>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ─── PROCESO ───────────────────────────────────────── */}
       {proceso.length > 0 && (

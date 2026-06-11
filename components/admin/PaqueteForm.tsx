@@ -5,7 +5,45 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { createSupabaseBrowser } from '@/lib/supabase'
-import { Plus, Trash2, Upload, Star } from 'lucide-react'
+import { Plus, Trash2, Upload, Star, X, GripVertical, Play } from 'lucide-react'
+import { isVideoUrl } from '@/lib/utils'
+import {
+  DndContext, closestCenter, DragOverlay,
+  type DragEndEvent, type DragStartEvent,
+  PointerSensor, TouchSensor, useSensor, useSensors,
+} from '@dnd-kit/core'
+import { SortableContext, rectSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+type GaleriaItem = { id: string; url: string }
+
+function genId() { return `${Date.now()}-${Math.random().toString(36).slice(2)}` }
+
+function SortableGaleriaItem({ item, onRemove }: { item: GaleriaItem; onRemove: () => void }) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
+    useSortable({ id: item.id })
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.35 : 1 }
+  const isVid = isVideoUrl(item.url)
+  return (
+    <div ref={setNodeRef} style={style} className="relative group select-none">
+      <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-intima-sand/20">
+        <button ref={setActivatorNodeRef} {...attributes} {...listeners} type="button"
+          className="absolute top-2 left-2 p-1.5 bg-black/50 rounded cursor-grab active:cursor-grabbing z-10 opacity-0 group-hover:opacity-100 transition-opacity touch-none">
+          <GripVertical size={13} className="text-white" />
+        </button>
+        {isVid
+          ? <><video src={item.url} muted loop autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" /><div className="absolute inset-0 flex items-center justify-center pointer-events-none"><Play size={18} className="text-white/50" /></div></>
+          : <img src={item.url} alt="" className="w-full h-full object-cover" />
+        }
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors" />
+        <button type="button" onClick={onRemove}
+          className="absolute top-2 right-2 p-1.5 bg-white/90 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50">
+          <X size={11} className="text-red-400" />
+        </button>
+      </div>
+    </div>
+  )
+}
 import type { Paquete, ProcesoStep } from '@/app/(site)/servicios/page'
 
 const CATEGORIAS = ['Dormitorio', 'Cocina', 'Baño', 'Living', 'Exterior', 'Oficina', 'Completo', 'Otro']
@@ -25,7 +63,17 @@ interface Props { paquete?: Paquete; isEditing?: boolean }
 export default function PaqueteForm({ paquete, isEditing = false }: Props) {
   const router = useRouter()
   const [imagenUrl, setImagenUrl] = useState(paquete?.imagen_url ?? '')
+  const [galeria, setGaleria] = useState<GaleriaItem[]>(
+    (paquete?.imagenes ?? []).map((url) => ({ id: genId(), url }))
+  )
+  const [activeGaleria, setActiveGaleria] = useState<GaleriaItem | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadingGaleria, setUploadingGaleria] = useState(false)
+
+  const galeriaSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } }),
+  )
   const [incluye, setIncluye] = useState<string[]>(
     paquete?.incluye?.length ? paquete.incluye : ['']
   )
@@ -61,6 +109,27 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
     toast.success('Imagen subida')
   }
 
+  // ── Galería ──
+  const handleGaleriaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files?.length) return
+    setUploadingGaleria(true)
+    const newItems: GaleriaItem[] = []
+    for (const file of Array.from(files)) {
+      const ext = file.name.split('.').pop()
+      const fileName = `paquetes/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const sb = createSupabaseBrowser()
+      const { error } = await sb.storage.from('proyectos').upload(fileName, file, { upsert: true })
+      if (error) { toast.error(`Error subiendo ${file.name}`); continue }
+      const { data: { publicUrl } } = sb.storage.from('proyectos').getPublicUrl(fileName)
+      newItems.push({ id: genId(), url: publicUrl })
+    }
+    setGaleria((prev) => [...prev, ...newItems])
+    setUploadingGaleria(false)
+    toast.success(`${newItems.length} archivo(s) subido(s)`)
+    e.target.value = ''
+  }
+
   // ── Incluye ──
   const addItem = () => setIncluye([...incluye, ''])
   const removeItem = (i: number) => setIncluye(incluye.filter((_, idx) => idx !== i))
@@ -81,6 +150,7 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
     const body = {
       ...data,
       imagen_url: imagenUrl || null,
+      imagenes: galeria.map((i) => i.url),
       incluye: incluye.filter(Boolean),
       proceso: procesoFinal,
     }
@@ -163,6 +233,61 @@ export default function PaqueteForm({ paquete, isEditing = false }: Props) {
           </span>
           <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading} className="hidden" />
         </label>
+      </div>
+
+      {/* ── Galería de imágenes ── */}
+      <div className="bg-white rounded-xl border border-gray-100 p-6">
+        <h2 className="font-body font-medium text-intima-dark text-sm mb-1">Galería adicional</h2>
+        <p className="font-body text-xs text-intima-dark/40 mb-4">
+          Imágenes o videos extra que aparecen en la página del servicio. Usá las flechas para reordenar.
+        </p>
+
+        <label className="flex items-center gap-3 border-2 border-dashed border-intima-sand rounded-xl p-5 cursor-pointer hover:border-intima-brown transition-colors w-full mb-4">
+          <Upload size={16} className="text-intima-sand flex-shrink-0" />
+          <span className="font-body text-sm text-intima-dark/60">
+            {uploadingGaleria ? 'Subiendo...' : 'Agregar imágenes o videos (múltiples)'}
+          </span>
+          <input type="file" accept="image/*,video/*" multiple onChange={handleGaleriaUpload} disabled={uploadingGaleria} className="hidden" />
+        </label>
+
+        {galeria.length > 0 && (
+          <DndContext
+            sensors={galeriaSensors}
+            collisionDetection={closestCenter}
+            onDragStart={({ active }) => setActiveGaleria(galeria.find((i) => i.id === active.id) ?? null)}
+            onDragEnd={({ active, over }: DragEndEvent) => {
+              setActiveGaleria(null)
+              if (!over || active.id === over.id) return
+              setGaleria((prev) => {
+                const from = prev.findIndex((i) => i.id === active.id)
+                const to = prev.findIndex((i) => i.id === over.id)
+                return arrayMove(prev, from, to)
+              })
+            }}
+          >
+            <SortableContext items={galeria.map((i) => i.id)} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {galeria.map((item) => (
+                  <SortableGaleriaItem
+                    key={item.id}
+                    item={item}
+                    onRemove={() => setGaleria((prev) => prev.filter((i) => i.id !== item.id))}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+            <DragOverlay dropAnimation={{ duration: 150, easing: 'ease' }}>
+              {activeGaleria ? (
+                <div className="relative aspect-[4/3] w-28 rounded-lg overflow-hidden shadow-xl rotate-2 opacity-90">
+                  {isVideoUrl(activeGaleria.url)
+                    ? <div className="w-full h-full bg-intima-black flex items-center justify-center"><Play size={18} className="text-white/60" /></div>
+                    : <img src={activeGaleria.url} alt="" className="w-full h-full object-cover" />
+                  }
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        )}
       </div>
 
       {/* ── Qué incluye ── */}

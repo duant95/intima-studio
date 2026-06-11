@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase, type Proyecto } from '@/lib/supabase'
-import { getSiteConfig } from '@/lib/config'
+import { getSiteConfig, parseImageList } from '@/lib/config'
 import ProjectCard from '@/components/ProjectCard'
 import FadeIn from '@/components/FadeIn'
+import MediaSlider from '@/components/MediaSlider'
 
 export const dynamic = 'force-dynamic'
 
@@ -139,22 +140,16 @@ export default async function HomePage() {
               </FadeIn>
             </div>
             <FadeIn direction="right">
-              <div className="relative aspect-[4/5] bg-intima-sand/40 overflow-hidden">
-                {config.intro_imagen_url ? (
-                  <Image
-                    src={config.intro_imagen_url}
-                    alt="Íntima Studio"
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <p className="font-body text-xs tracking-widest uppercase text-intima-brown/30">
-                      Imagen del estudio
-                    </p>
-                  </div>
-                )}
-              </div>
+              <MediaSlider
+                images={(() => {
+                  const list = parseImageList(config.intro_imagenes)
+                  return list.length > 0 ? list : config.intro_imagen_url ? [config.intro_imagen_url] : []
+                })()}
+                videoUrl={config.intro_video_url || undefined}
+                alt="Íntima Studio"
+                aspectClass="aspect-[4/5]"
+                placeholder="Imagen del estudio"
+              />
             </FadeIn>
           </div>
         </div>
