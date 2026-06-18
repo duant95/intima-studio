@@ -8,8 +8,17 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Servicios · Comprá tu proyecto',
-  description: 'Paquetes de diseño de interiores online. Proyectos 3D, planos y lista de compras con precios fijos.',
+  title: 'Servicios · Paquetes de Diseño de Interiores',
+  description:
+    'Paquetes de diseño de interiores con precios fijos. Proyecto 3D completo, planos, lista de materiales y asesoría para dormitorios, cocinas, livings, baños y más.',
+  keywords: [
+    'paquetes diseño interiores', 'diseño dormitorio Paraguay', 'diseño cocina Asunción',
+    'proyecto 3D interiores', 'diseño de baño', 'diseño de living',
+  ],
+  openGraph: {
+    title: 'Servicios de Diseño de Interiores · Íntima Studio',
+    description: 'Paquetes de diseño con precios fijos. Proyecto 3D, planos y asesoría personalizada.',
+  },
 }
 
 export type ProcesoStep = {

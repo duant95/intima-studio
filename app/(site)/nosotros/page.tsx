@@ -7,8 +7,13 @@ import MediaSlider from '@/components/MediaSlider'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Nosotros',
-  description: 'Conocé el equipo y la filosofía de Íntima Studio.',
+  title: 'Nosotros · Quiénes Somos',
+  description:
+    'Conocé la historia y filosofía de Íntima Studio, estudio boutique de diseño de interiores en Asunción, Paraguay. Un enfoque personalizado para cada proyecto.',
+  openGraph: {
+    title: 'Nosotros · Íntima Studio',
+    description: 'Estudio boutique de diseño de interiores en Asunción, Paraguay. Conocé nuestra filosofía y proceso creativo.',
+  },
 }
 
 const PROCESO = [

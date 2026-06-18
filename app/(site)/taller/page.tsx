@@ -11,8 +11,17 @@ import { ArrowRight } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'El Taller · Muebles a Medida',
-  description: 'Diseño y fabricación de muebles únicos a medida. Piezas de autor que transforman cada espacio.',
+  title: 'El Taller · Muebles a Medida en Paraguay',
+  description:
+    'Diseño y fabricación de muebles únicos a medida en Paraguay. Mesas, módulos, sillas, camas y piezas de autor hechas con materiales de calidad para transformar cada espacio.',
+  keywords: [
+    'muebles a medida Paraguay', 'muebles de autor', 'carpintería a medida Asunción',
+    'muebles de diseño', 'mobiliario personalizado',
+  ],
+  openGraph: {
+    title: 'El Taller — Muebles a Medida · Íntima Studio',
+    description: 'Muebles únicos a medida diseñados y fabricados en Paraguay.',
+  },
 }
 
 const CATEGORIAS_TALLER = ['Mobiliario', 'Muebles']

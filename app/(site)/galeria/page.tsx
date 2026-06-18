@@ -5,8 +5,13 @@ import GaleriaFiltrada from '@/components/GaleriaFiltrada'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Proyectos',
-  description: 'Galería de proyectos de diseño de interiores de Íntima Studio.',
+  title: 'Galería de Proyectos · Diseño de Interiores',
+  description:
+    'Galería de proyectos realizados por Íntima Studio: remodelaciones residenciales, diseño comercial, dormitorios, cocinas, livings y más en Asunción, Paraguay.',
+  openGraph: {
+    title: 'Galería de Proyectos · Íntima Studio',
+    description: 'Proyectos de diseño de interiores residencial y comercial en Paraguay.',
+  },
 }
 
 // Categorías que pertenecen a El Taller (no galería de diseño)

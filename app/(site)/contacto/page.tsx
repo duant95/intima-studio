@@ -6,8 +6,13 @@ import ContactoForm from '@/components/ContactoForm'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Contacto',
-  description: 'Hablemos de tu proyecto. Estudio de diseño de interiores en Asunción, Paraguay.',
+  title: 'Contacto · Hablemos de tu Proyecto',
+  description:
+    'Contactá a Íntima Studio para hablar sobre tu proyecto de diseño de interiores. Estudio boutique en Asunción, Paraguay. Respondemos a la brevedad.',
+  openGraph: {
+    title: 'Contacto · Íntima Studio',
+    description: 'Hablemos de tu proyecto de diseño de interiores. Íntima Studio, Asunción, Paraguay.',
+  },
 }
 
 export default async function ContactoPage() {

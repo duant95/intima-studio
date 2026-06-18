@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { supabase, type Proyecto } from '@/lib/supabase'
@@ -7,6 +8,17 @@ import FadeIn from '@/components/FadeIn'
 import MediaSlider from '@/components/MediaSlider'
 
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Íntima Studio — Diseño de Interiores en Asunción, Paraguay',
+  description:
+    'Estudio boutique de diseño de interiores en Asunción, Paraguay. Transformamos espacios residenciales y comerciales en experiencias únicas, con atención al detalle y diseño personalizado.',
+  openGraph: {
+    title: 'Íntima Studio — Diseño de Interiores en Asunción, Paraguay',
+    description: 'Transformamos espacios en experiencias únicas. Diseño residencial, comercial y muebles a medida.',
+  },
+  alternates: { canonical: 'https://www.intimastudio.com' },
+}
 
 async function getProyectosDestacados(): Promise<Proyecto[]> {
   const { data: destacados } = await supabase
